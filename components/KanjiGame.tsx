@@ -37,8 +37,8 @@ function createGameScene(
     private W = 400;
     private H = 620;
     private WALL = 10;
-    private DANGER_Y = 100;
-    private DROP_Y = 60;
+    private DANGER_Y = 90;   // game over line (px from top of canvas)
+    private DROP_Y = 50;     // where preview piece hovers (above danger line)
 
     constructor() {
       super({ key: "KanjiScene" });
@@ -132,9 +132,11 @@ function createGameScene(
         collisionFilter: { category: 1, mask: 1 },
       }) as unknown as MatterJS.BodyType;
 
-      // Store level on body for collision lookup
+      // Store level and creation time on body
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (body as any).kanjiLevel = this.currentLevel;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (body as any).createdAt = Date.now();
 
       // Attach container to track body
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -260,6 +262,8 @@ function createGameScene(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (body as any).kanjiLevel = level;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (body as any).createdAt = Date.now();
 
       const gfx = this.createKanjiContainer(clampedX, y, level, true);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -296,12 +300,20 @@ function createGameScene(
           gfx.rotation = body.angle;
         }
 
-        // Game over check: any kanji body above danger line (and not static)
+        // Game over check: settled piece above danger line
+        // Grace period: ignore pieces created within last 2s (still falling)
         if (!body.isStatic && anyBody.kanjiLevel !== undefined && !this.gameOver) {
-          if (body.position.y - (KANJI_LEVELS[anyBody.kanjiLevel]?.radius ?? 0) < this.DANGER_Y) {
-            // Only trigger if velocity is low (settled)
-            if (Math.abs(body.velocity.y) < 0.5) {
-              this.triggerGameOver();
+          const age = Date.now() - (anyBody.createdAt ?? Date.now());
+          if (age > 2000) {
+            const radius = KANJI_LEVELS[anyBody.kanjiLevel]?.radius ?? 0;
+            // Game over when the CENTER of a settled piece is above danger line
+            if (body.position.y < this.DANGER_Y + radius) {
+              const settled =
+                Math.abs(body.velocity.y) < 0.3 &&
+                Math.abs(body.velocity.x) < 0.3;
+              if (settled) {
+                this.triggerGameOver();
+              }
             }
           }
         }
