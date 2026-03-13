@@ -444,7 +444,11 @@ export default function KanjiGame() {
   };
 
   const handleShare = () => {
-    const text = `字玉JITAMAで${state.score}点！漢字を合体させる物理パズル🀄 #字玉 #JITAMA #漢字ゲーム`;
+    const isHighScore = state.score >= state.highScore && state.score > 0;
+    const scoreRank = state.score >= 5000 ? "上級者レベル！" : state.score >= 2000 ? "中級者レベル！" : "入門者レベル！";
+    const text = isHighScore
+      ? `【NEW記録🎉】字玉JITAMAで${state.score}点を達成！${scoreRank} あなたは何点取れる？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`
+      : `字玉JITAMAで${state.score}点！${scoreRank} あなたのスコアは何位？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`;
     const url = "https://jitama.vercel.app/game";
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -497,14 +501,19 @@ export default function KanjiGame() {
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
             <p className="text-yellow-300 text-2xl font-bold mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (
-              <p className="text-pink-400 text-sm font-bold mb-3">🎉 NEW HIGH SCORE!</p>
+              <p className="text-pink-400 text-sm font-bold mb-1">🎉 NEW HIGH SCORE!</p>
             )}
+            <p className="text-purple-300 text-xs mb-3">あなたのスコアは何位？友達と競おう！</p>
             <button
               onClick={handleShare}
-              className="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 rounded-xl mb-3"
+              className="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 rounded-xl mb-2"
             >
-              Xでシェアする 🐦
+              スコアをXでシェア 🐦
             </button>
+            {/* 広告表示エリア（AdSense申請後に有効化） */}
+            <div id="ad-container" className="w-full min-h-[60px] my-2 flex items-center justify-center">
+              {/* Google AdSense広告がここに表示されます */}
+            </div>
             <button
               onClick={handleRestart}
               className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl"

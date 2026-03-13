@@ -32,6 +32,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        {/* Google AdSense - TODO: Replace ca-pub-XXXXXXXXXXXXXXXX with actual publisher ID */}
+        {/* AdSense申請後にコメントアウトを外して有効化してください */}
+        {/* <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossOrigin="anonymous"></script> */}
+      </head>
       <body>{children}</body>
     </html>
   );
