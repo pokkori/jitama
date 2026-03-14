@@ -41,6 +41,15 @@ export async function POST(req: Request) {
       path: "/",
       sameSite: "lax",
     });
+    if (sub.id) {
+      cookieStore.set("payjp_sub_id", sub.id, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 60 * 60 * 24 * 366,
+        path: "/",
+        sameSite: "lax",
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {
