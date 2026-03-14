@@ -455,7 +455,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameP
     const text = isHighScore
       ? `【NEW記録🎉】字玉JITAMAで${state.score}点を達成！${scoreRank} あなたは何点取れる？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`
       : `字玉JITAMAで${state.score}点！${scoreRank} あなたのスコアは何位？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`;
-    const url = "https://jitama.vercel.app/game";
+    const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
     } else {
