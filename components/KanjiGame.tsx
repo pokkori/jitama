@@ -10,6 +10,11 @@ interface GameState {
   highScore: number;
 }
 
+interface KanjiGameProps {
+  /** Called when the game ends (used for play count tracking) */
+  onGameOver?: (score: number) => void;
+}
+
 // ─── Phaser Scene ────────────────────────────────────────────────────────────
 
 function createGameScene(
@@ -359,7 +364,7 @@ function createGameScene(
 
 // ─── React Component ──────────────────────────────────────────────────────────
 
-export default function KanjiGame() {
+export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const [state, setState] = useState<GameState>({
@@ -394,6 +399,7 @@ export default function KanjiGame() {
           const newHs = Math.max(hs, score);
           localStorage.setItem("jitama_hs", String(newHs));
           setState((prev) => ({ ...prev, gameOver: true, highScore: newHs }));
+          onGameOverExternal?.(score);
         }
       );
 

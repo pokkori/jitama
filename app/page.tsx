@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { KANJI_LEVELS } from "@/lib/kanji-data";
+import PremiumButton from "@/components/PremiumButton";
 
 const LEVELS_PREVIEW = KANJI_LEVELS.slice(0, 6);
 
@@ -94,7 +95,28 @@ export default function LandingPage() {
         >
           無料でプレイ →
         </Link>
-        <p className="text-xs text-purple-500 mt-4">
+      </section>
+
+      {/* Premium Section */}
+      <section className="max-w-lg mx-auto px-4 py-8">
+        <div className="bg-gradient-to-br from-purple-900/60 to-indigo-900/60 border border-purple-700 rounded-2xl p-8 text-center">
+          <div className="text-3xl mb-3">⭐</div>
+          <h2 className="text-xl font-bold text-white mb-2">プレミアムプラン</h2>
+          <p className="text-purple-300 text-sm mb-4">無制限プレイ + 追加漢字パック</p>
+          <p className="text-4xl font-black text-white mb-1">¥480<span className="text-base font-normal text-purple-400">/月</span></p>
+          <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
+            <li>✓ 1日の制限なし・無制限プレイ</li>
+            <li>✓ 追加漢字パック（近日公開）</li>
+            <li>✓ 字玉の開発を応援</li>
+          </ul>
+          <PremiumButton />
+          <p className="text-xs text-purple-500 mt-3">いつでも解約可能・クレジットカード払い</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <section className="max-w-lg mx-auto px-4 py-8 text-center">
+        <p className="text-xs text-purple-500">
           © 2026 字玉 JITAMA |{" "}
           <Link href="/legal" className="underline hover:text-purple-300">特商法</Link>
           {" "}·{" "}
