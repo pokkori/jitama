@@ -47,10 +47,42 @@ function incrementPlayCount(): number {
   return next;
 }
 
+// JLPT levels that require premium
+const PREMIUM_JLPT_MODES: JlptLevel[] = ["N4", "N3_N1"];
+
+function JLPTPaywall({ onClose, onOpenPayjp }: { onClose: () => void; onOpenPayjp: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl">
+        <div className="text-4xl mb-3">🎌</div>
+        <h2 className="text-lg font-bold text-gray-900 mb-2">JLPT N4〜N1はプレミアム</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          月額¥480でN4・N3・N2・N1の<br />上級漢字パックが使い放題
+        </p>
+        <ul className="text-sm text-gray-600 space-y-1 mb-5 text-left">
+          <li>✓ 無制限プレイ（1日5回制限なし）</li>
+          <li>✓ N4 / N3〜N1 上級漢字パック解放</li>
+          <li>✓ 字玉の開発を応援</li>
+        </ul>
+        <button
+          onClick={onOpenPayjp}
+          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl mb-2 transition-colors"
+        >
+          ¥480/月で解放する
+        </button>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">
+          閉じる
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function GamePageInner() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [showLimitDialog, setShowLimitDialog] = useState(false);
   const [showPayjpModal, setShowPayjpModal] = useState(false);
+  const [showJlptPaywall, setShowJlptPaywall] = useState(false);
   const [playCount, setPlayCount] = useState(0);
   const [showModeSelect, setShowModeSelect] = useState(false);
   const router = useRouter();
@@ -65,10 +97,24 @@ function GamePageInner() {
   useEffect(() => {
     fetch("/api/auth/status")
       .then((r) => r.json())
-      .then((data) => setIsPremium(data.isPremium ?? false))
-      .catch(() => setIsPremium(false));
+      .then((data) => {
+        const premium = data.isPremium ?? false;
+        setIsPremium(premium);
+        // If user directly navigated to a premium JLPT mode without being premium,
+        // show the paywall immediately
+        if (!premium && PREMIUM_JLPT_MODES.includes(currentMode)) {
+          setShowJlptPaywall(true);
+        }
+      })
+      .catch(() => {
+        setIsPremium(false);
+        if (PREMIUM_JLPT_MODES.includes(currentMode)) {
+          setShowJlptPaywall(true);
+        }
+      });
 
     setPlayCount(getPlayCount());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleGameOver = () => {
@@ -86,6 +132,12 @@ function GamePageInner() {
   };
 
   const handleModeSelect = (mode: JlptLevel) => {
+    // If selecting a premium JLPT mode and user is not premium, show paywall
+    if (PREMIUM_JLPT_MODES.includes(mode) && !isPremium) {
+      setShowModeSelect(false);
+      setShowJlptPaywall(true);
+      return;
+    }
     setShowModeSelect(false);
     if (mode === currentMode) return;
     // Navigate with mode param — page reloads naturally
@@ -159,34 +211,54 @@ function GamePageInner() {
               </p>
             </div>
             <div className="space-y-3">
-              {JLPT_MODES.map((mode) => (
-                <button
-                  key={mode.key}
-                  onClick={() => handleModeSelect(mode.key)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${
-                    currentMode === mode.key
-                      ? "border-purple-400 bg-purple-700/40"
-                      : "border-purple-800 bg-white/5 hover:bg-white/10 hover:border-purple-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{mode.emoji}</span>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white">{mode.label}</span>
-                        <span className="text-[10px] text-purple-400">{mode.labelEn}</span>
-                        {currentMode === mode.key && (
-                          <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full ml-auto">
-                            選択中
-                          </span>
-                        )}
+              {JLPT_MODES.map((mode) => {
+                const needsPremium = PREMIUM_JLPT_MODES.includes(mode.key) && !isPremium;
+                return (
+                  <button
+                    key={mode.key}
+                    onClick={() => handleModeSelect(mode.key)}
+                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${
+                      currentMode === mode.key
+                        ? "border-purple-400 bg-purple-700/40"
+                        : needsPremium
+                        ? "border-amber-700/60 bg-amber-900/20 hover:bg-amber-900/30 hover:border-amber-600"
+                        : "border-purple-800 bg-white/5 hover:bg-white/10 hover:border-purple-600"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{mode.emoji}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-white">{mode.label}</span>
+                          <span className="text-[10px] text-purple-400">{mode.labelEn}</span>
+                          {currentMode === mode.key && (
+                            <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full ml-auto">
+                              選択中
+                            </span>
+                          )}
+                          {needsPremium && (
+                            <span className="text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full ml-auto">
+                              ⭐ プレミアム
+                            </span>
+                          )}
+                          {!needsPremium && mode.key !== "all" && mode.key !== "N5" && isPremium && (
+                            <span className="text-[10px] bg-green-700 text-white px-1.5 py-0.5 rounded-full ml-auto">
+                              解放済み
+                            </span>
+                          )}
+                          {mode.key === "N5" && (
+                            <span className="text-[10px] bg-green-600/80 text-white px-1.5 py-0.5 rounded-full ml-auto">
+                              無料
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-purple-300 mt-0.5">{mode.description}</p>
+                        <p className="text-[10px] text-purple-500">{mode.descriptionEn}</p>
                       </div>
-                      <p className="text-xs text-purple-300 mt-0.5">{mode.description}</p>
-                      <p className="text-[10px] text-purple-500">{mode.descriptionEn}</p>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setShowModeSelect(false)}
@@ -214,7 +286,8 @@ function GamePageInner() {
             </p>
             <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
               <li>✓ 1日の制限なし・無制限プレイ</li>
-              <li>✓ 追加漢字パック（近日公開）</li>
+              <li>✓ JLPT N4 漢字パック解放 📗</li>
+              <li>✓ JLPT N3〜N1 上級漢字パック解放 🏆</li>
               <li>✓ 字玉の開発を応援</li>
             </ul>
             <button
@@ -236,11 +309,28 @@ function GamePageInner() {
         </div>
       )}
 
+      {/* JLPT Premium Paywall */}
+      {showJlptPaywall && (
+        <JLPTPaywall
+          onClose={() => {
+            setShowJlptPaywall(false);
+            // If user is on a premium mode and closes paywall, redirect to N5 (free mode)
+            if (PREMIUM_JLPT_MODES.includes(currentMode)) {
+              router.push("/game?mode=N5");
+            }
+          }}
+          onOpenPayjp={() => {
+            setShowJlptPaywall(false);
+            setShowPayjpModal(true);
+          }}
+        />
+      )}
+
       {/* PAY.JP Modal */}
       {showPayjpModal && (
         <PayjpModal
           publicKey={publicKey}
-          planLabel="プレミアムプラン ¥480/月 — 無制限プレイ"
+          planLabel="プレミアムプラン ¥480/月 — 無制限プレイ + JLPT N4〜N1漢字パック"
           onSuccess={handlePaySuccess}
           onClose={() => setShowPayjpModal(false)}
         />

@@ -90,21 +90,38 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {JLPT_MODES.map((mode) => (
-              <Link
-                key={mode.key}
-                href={`/game?mode=${mode.key}`}
-                className="bg-white/5 hover:bg-white/10 border border-emerald-800/60 hover:border-emerald-600 rounded-xl px-4 py-3 text-center transition-all hover:scale-[1.02] block"
-              >
-                <div className="text-2xl mb-1">{mode.emoji}</div>
-                <div className="text-sm font-bold text-white">{mode.label}</div>
-                <div className="text-[10px] text-emerald-400">{mode.labelEn}</div>
-                <div className="text-[10px] text-purple-300 mt-1">{mode.descriptionEn}</div>
-              </Link>
-            ))}
+            {JLPT_MODES.map((mode) => {
+              const isPremiumMode = mode.key === "N4" || mode.key === "N3_N1";
+              return (
+                <Link
+                  key={mode.key}
+                  href={`/game?mode=${mode.key}`}
+                  className={`relative border rounded-xl px-4 py-3 text-center transition-all hover:scale-[1.02] block ${
+                    isPremiumMode
+                      ? "bg-amber-900/20 hover:bg-amber-900/30 border-amber-700/60 hover:border-amber-500"
+                      : "bg-white/5 hover:bg-white/10 border-emerald-800/60 hover:border-emerald-600"
+                  }`}
+                >
+                  {isPremiumMode && (
+                    <span className="absolute top-1.5 right-1.5 text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-bold">
+                      ⭐ プレミアム
+                    </span>
+                  )}
+                  {mode.key === "N5" && (
+                    <span className="absolute top-1.5 right-1.5 text-[9px] bg-green-600 text-white px-1.5 py-0.5 rounded-full font-bold">
+                      無料
+                    </span>
+                  )}
+                  <div className="text-2xl mb-1">{mode.emoji}</div>
+                  <div className="text-sm font-bold text-white">{mode.label}</div>
+                  <div className="text-[10px] text-emerald-400">{mode.labelEn}</div>
+                  <div className="text-[10px] text-purple-300 mt-1">{mode.descriptionEn}</div>
+                </Link>
+              );
+            })}
           </div>
           <p className="text-center text-[10px] text-emerald-600 mt-4">
-            JLPT N5 / N4 / N1-N3 対応 · Free to play · No install needed
+            N5 無料 · N4〜N1 プレミアム ¥480/月 · No install needed
           </p>
         </div>
       </section>
@@ -138,11 +155,12 @@ export default function LandingPage() {
         <div className="bg-gradient-to-br from-purple-900/60 to-indigo-900/60 border border-purple-700 rounded-2xl p-8 text-center">
           <div className="text-3xl mb-3">⭐</div>
           <h2 className="text-xl font-bold text-white mb-2">プレミアムプラン</h2>
-          <p className="text-purple-300 text-sm mb-4">無制限プレイ + 追加漢字パック</p>
+          <p className="text-purple-300 text-sm mb-4">無制限プレイ + JLPT N4〜N1 漢字パック</p>
           <p className="text-4xl font-black text-white mb-1">¥480<span className="text-base font-normal text-purple-400">/月</span></p>
           <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
             <li>✓ 1日の制限なし・無制限プレイ</li>
-            <li>✓ 追加漢字パック（近日公開）</li>
+            <li>✓ JLPT N4 漢字パック解放 📗</li>
+            <li>✓ JLPT N3〜N1 上級漢字パック解放 🏆</li>
             <li>✓ 字玉の開発を応援</li>
           </ul>
           <PremiumButton />
