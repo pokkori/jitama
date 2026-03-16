@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
+import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
 
 interface GameState {
   score: number;
@@ -13,6 +14,8 @@ interface GameState {
 interface KanjiGameProps {
   /** Called when the game ends (used for play count tracking) */
   onGameOver?: (score: number) => void;
+  /** JLPT mode filter — affects badge display and future kanji filtering */
+  jlptMode?: JlptLevel;
 }
 
 // ─── Phaser Scene ────────────────────────────────────────────────────────────
@@ -364,7 +367,8 @@ function createGameScene(
 
 // ─── React Component ──────────────────────────────────────────────────────────
 
-export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameProps = {}) {
+export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "all" }: KanjiGameProps = {}) {
+  const currentModeInfo = JLPT_MODES.find((m) => m.key === jlptMode) ?? JLPT_MODES[0];
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const [state, setState] = useState<GameState>({
@@ -471,7 +475,14 @@ export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameP
     <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e] select-none">
       {/* Header */}
       <div className="w-full max-w-[400px] px-3 pt-3 pb-1 flex items-center justify-between">
-        <div className="text-xs text-purple-300">字玉 JITAMA</div>
+        <div className="flex flex-col gap-0.5">
+          <div className="text-xs text-purple-300">字玉 JITAMA</div>
+          {jlptMode !== "all" && (
+            <div className="text-[10px] font-bold text-emerald-400">
+              {currentModeInfo.emoji} {currentModeInfo.label} MODE
+            </div>
+          )}
+        </div>
         <div className="flex gap-3">
           <div className="text-center">
             <div className="text-[10px] text-purple-400">SCORE</div>
@@ -489,6 +500,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameP
             >
               {nextKanji.char}
             </div>
+            <div className="text-[9px] text-purple-500">{nextKanji.jlpt}</div>
           </div>
         </div>
       </div>
@@ -542,6 +554,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal }: KanjiGameP
               >
                 {kl.char}
               </div>
+              <div className="text-[8px] text-purple-600">{kl.jlpt}</div>
             </div>
           ))}
         </div>

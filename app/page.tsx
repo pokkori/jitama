@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { KANJI_LEVELS } from "@/lib/kanji-data";
+import { JLPT_MODES } from "@/lib/jlpt";
 import PremiumButton from "@/components/PremiumButton";
 
 const LEVELS_PREVIEW = KANJI_LEVELS.slice(0, 6);
@@ -70,6 +71,41 @@ export default function LandingPage() {
               <p className="text-xs text-purple-300">{s.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* JLPT Mode Section — Global Players */}
+      <section className="max-w-lg mx-auto px-4 py-8">
+        <div className="bg-gradient-to-br from-emerald-900/50 to-teal-900/50 border border-emerald-700/60 rounded-2xl p-6">
+          <div className="text-center mb-5">
+            <div className="text-3xl mb-2">🎌</div>
+            <h2 className="text-lg font-bold text-white mb-1">
+              JLPTモードで漢字を学ぼう
+            </h2>
+            <p className="text-emerald-300 text-sm font-medium">
+              Learn Kanji while playing!
+            </p>
+            <p className="text-emerald-200/80 text-xs mt-1">
+              Perfect for JLPT prep — choose your level and study as you play 🎮
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {JLPT_MODES.map((mode) => (
+              <Link
+                key={mode.key}
+                href={`/game?mode=${mode.key}`}
+                className="bg-white/5 hover:bg-white/10 border border-emerald-800/60 hover:border-emerald-600 rounded-xl px-4 py-3 text-center transition-all hover:scale-[1.02] block"
+              >
+                <div className="text-2xl mb-1">{mode.emoji}</div>
+                <div className="text-sm font-bold text-white">{mode.label}</div>
+                <div className="text-[10px] text-emerald-400">{mode.labelEn}</div>
+                <div className="text-[10px] text-purple-300 mt-1">{mode.descriptionEn}</div>
+              </Link>
+            ))}
+          </div>
+          <p className="text-center text-[10px] text-emerald-600 mt-4">
+            JLPT N5 / N4 / N1-N3 対応 · Free to play · No install needed
+          </p>
         </div>
       </section>
 
