@@ -175,10 +175,22 @@ export default function LandingPage() {
           <p className="text-lg font-bold text-yellow-300 mb-2">
             「字玉で1,234点！」
           </p>
-          <p className="text-sm text-purple-200">
+          <p className="text-sm text-purple-200 mb-4">
             ゲームオーバー後にワンタップでXに投稿できます。<br />
             友達と最高スコアを競おう。
           </p>
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル🀄 どこまで合体できる？ → https://jitama.vercel.app #字玉 #漢字 #パズルゲーム #JLPT")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
+            style={{ background: "#000" }}
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Xで字玉を紹介する
+          </a>
         </div>
       </section>
 
