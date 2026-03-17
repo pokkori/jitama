@@ -625,10 +625,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
   const handleShare = () => {
     const isHighScore = state.score >= state.highScore && state.score > 0;
-    const scoreRank = state.score >= 5000 ? "上級者レベル！" : state.score >= 2000 ? "中級者レベル！" : "入門者レベル！";
+    // スコアによる上位%推定（体験的バイラル設計）
+    const topPercent = state.score >= 5000 ? "上位5%" : state.score >= 3000 ? "上位15%" : state.score >= 2000 ? "上位30%" : state.score >= 1000 ? "上位50%" : "入門者";
+    const modeLabel = jlptMode !== "all" ? `[${JLPT_MODES.find(m => m.key === jlptMode)?.label ?? jlptMode}] ` : "";
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMAで${state.score}点を達成！${scoreRank} あなたは何点取れる？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`
-      : `字玉JITAMAで${state.score}点！${scoreRank} あなたのスコアは何位？友達と競おう！🀄 #字玉 #JITAMA #漢字ゲーム`;
+      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}${topPercent}の漢字力！漢字ゲームで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
+      : `字玉JITAMAで${state.score}点！${modeLabel}${topPercent}！あなたは何点取れる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
