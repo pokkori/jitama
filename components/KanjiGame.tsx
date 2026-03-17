@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
 import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import LocalRanking, {
+  type RankingEntry,
+  loadRanking,
+  saveToRanking,
+  resetRanking,
+} from "@/components/LocalRanking";
 
 interface MergeHint {
   char: string;
@@ -19,6 +25,8 @@ interface GameState {
   gameOver: boolean;
   highScore: number;
   mergeHint: MergeHint | null;
+  ranking: RankingEntry[];
+  newRank: number | null; // 今回の順位（null = ランク外 or まだゲーム中）
 }
 
 interface KanjiGameProps {
@@ -392,6 +400,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     gameOver: false,
     highScore: 0,
     mergeHint: null,
+    ranking: [],
+    newRank: null,
   });
 
   useEffect(() => {
@@ -420,7 +430,29 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           localStorage.setItem("jitama_hs", String(newHs));
           if (score >= newHs) playHighScore();
           else playGameOver();
-          setState((prev) => ({ ...prev, gameOver: true, highScore: newHs }));
+
+          // ── ランキング保存 ──────────────────────────────────────────────
+          const entry: RankingEntry = {
+            score,
+            date: new Date().toLocaleDateString("ja-JP", {
+              month: "numeric",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            level: jlptMode === "all" ? "全漢字" : jlptMode === "N5" ? "N5" : jlptMode === "N4" ? "N4" : "N3-N1",
+          };
+          const rank = saveToRanking(entry);
+          const updatedRanking = loadRanking();
+          // ───────────────────────────────────────────────────────────────
+
+          setState((prev) => ({
+            ...prev,
+            gameOver: true,
+            highScore: newHs,
+            ranking: updatedRanking,
+            newRank: rank,
+          }));
           onGameOverExternal?.(score);
         },
         (level) => {
@@ -472,9 +504,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       game = new Phaser.default.Game(config);
       gameRef.current = game;
 
-      // Load saved high score
+      // Load saved high score and ranking
       const hs = Number(localStorage.getItem("jitama_hs") ?? "0");
-      setState((prev) => ({ ...prev, highScore: hs }));
+      const savedRanking = loadRanking();
+      setState((prev) => ({ ...prev, highScore: hs, ranking: savedRanking }));
     });
 
     return () => {
@@ -488,7 +521,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       gameRef.current.destroy(true);
       gameRef.current = null;
     }
-    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, mergeHint: null });
+    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null });
     // Re-mount triggers useEffect
     setTimeout(() => {
       window.location.reload();
@@ -571,12 +604,17 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
       {/* Game Over Overlay */}
       {state.gameOver && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
-          <div className="bg-[#1a0a2e]/90 border border-purple-500 rounded-2xl p-8 text-center max-w-sm mx-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 overflow-y-auto py-4">
+          <div className="bg-[#1a0a2e]/95 border border-purple-500 rounded-2xl p-6 text-center w-full max-w-sm mx-4">
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
             <p className="text-yellow-300 text-2xl font-bold mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (
               <p className="text-pink-400 text-sm font-bold mb-1">🎉 NEW HIGH SCORE!</p>
+            )}
+            {state.newRank !== null && (
+              <p className="text-emerald-400 text-xs font-bold mb-1">
+                ランキング {state.newRank}位に登録されました！
+              </p>
             )}
             <p className="text-purple-300 text-xs mb-3">あなたのスコアは何位？友達と競おう！</p>
             <button
@@ -591,10 +629,19 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             </div>
             <button
               onClick={handleRestart}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl"
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl mb-4"
             >
               もう一回遊ぶ
             </button>
+
+            {/* ローカルランキング */}
+            <LocalRanking
+              entries={state.ranking}
+              onReset={() => {
+                resetRanking();
+                setState((prev) => ({ ...prev, ranking: [], newRank: null }));
+              }}
+            />
           </div>
         </div>
       )}
