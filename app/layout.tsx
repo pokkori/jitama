@@ -17,11 +17,13 @@ export const metadata: Metadata = {
     siteName: "字玉 JITAMA",
     locale: "ja_JP",
     type: "website",
+    images: [{ url: "/images/hero.png", width: 640, height: 360, alt: "字玉 JITAMA ゲーム画面" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: TITLE,
     description: "部首を落として合体！漢字が進化する物理パズル。",
+    images: ["/images/hero.png"],
   },
   metadataBase: new URL(SITE_URL),
 };
