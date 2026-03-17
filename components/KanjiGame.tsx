@@ -11,6 +11,53 @@ import LocalRanking, {
   resetRanking,
 } from "@/components/LocalRanking";
 
+// ─── ストリーク ─────────────────────────────────────────────────────────────
+
+function getStreakData(): { streak: number; lastDate: string } {
+  try {
+    return JSON.parse(localStorage.getItem("jitama_streak") ?? "{}") ?? { streak: 0, lastDate: "" };
+  } catch { return { streak: 0, lastDate: "" }; }
+}
+
+function updateStreak(): { streak: number; isNew: boolean } {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const data = getStreakData();
+  if (data.lastDate === today) return { streak: data.streak, isNew: false };
+  const newStreak = data.lastDate === yesterday ? data.streak + 1 : 1;
+  localStorage.setItem("jitama_streak", JSON.stringify({ streak: newStreak, lastDate: today }));
+  return { streak: newStreak, isNew: true };
+}
+
+// ─── デイリーチャレンジ (日付seed) ───────────────────────────────────────────
+
+function getDailyChallengeTarget(): number {
+  const d = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  // 1000〜4000の間でdaily target
+  return 1000 + (seed % 11) * 300;
+}
+
+function getDailyChallengeStatus(): { target: number; best: number; cleared: boolean } {
+  const today = new Date().toISOString().slice(0, 10);
+  const target = getDailyChallengeTarget();
+  try {
+    const data = JSON.parse(localStorage.getItem("jitama_daily_challenge") ?? "{}");
+    if (data.date === today) {
+      return { target, best: data.best ?? 0, cleared: (data.best ?? 0) >= target };
+    }
+  } catch { /* */ }
+  return { target, best: 0, cleared: false };
+}
+
+function saveDailyChallengeScore(score: number): void {
+  const today = new Date().toISOString().slice(0, 10);
+  const current = getDailyChallengeStatus();
+  if (score > current.best) {
+    localStorage.setItem("jitama_daily_challenge", JSON.stringify({ date: today, best: score }));
+  }
+}
+
 interface MergeHint {
   char: string;
   reading: string;
@@ -27,6 +74,17 @@ interface GameState {
   mergeHint: MergeHint | null;
   ranking: RankingEntry[];
   newRank: number | null; // 今回の順位（null = ランク外 or まだゲーム中）
+}
+
+interface StreakState {
+  streak: number;
+  showBanner: boolean;
+}
+
+interface DailyChallenge {
+  target: number;
+  best: number;
+  cleared: boolean;
 }
 
 interface KanjiGameProps {
@@ -400,6 +458,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showJiCelebration, setShowJiCelebration] = useState(false);
   const [jiShown, setJiShown] = useState(false);
+  const [streakState, setStreakState] = useState<StreakState>({ streak: 0, showBanner: false });
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge>({ target: 2000, best: 0, cleared: false });
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -416,6 +476,14 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     if (!seen) {
       setShowTutorial(true);
     }
+    // ストリーク更新
+    const { streak, isNew } = updateStreak();
+    setStreakState({ streak, showBanner: isNew && streak >= 2 });
+    if (isNew && streak >= 2) {
+      setTimeout(() => setStreakState(s => ({ ...s, showBanner: false })), 3000);
+    }
+    // デイリーチャレンジ初期化
+    setDailyChallenge(getDailyChallengeStatus());
   }, []);
 
   useEffect(() => {
@@ -444,6 +512,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           localStorage.setItem("jitama_hs", String(newHs));
           if (score >= newHs) playHighScore();
           else playGameOver();
+          // デイリーチャレンジ更新
+          saveDailyChallengeScore(score);
+          setDailyChallenge(getDailyChallengeStatus());
 
           // ── ランキング保存 ──────────────────────────────────────────────
           const entry: RankingEntry = {
@@ -576,8 +647,40 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     { icon: "🏆", title: "「字」を目指せ！", desc: "「一」から「字」まで12段階。最高漢字を出そう！" },
   ];
 
+  const dailyChallengeProgress = Math.min(100, Math.round((dailyChallenge.best / dailyChallenge.target) * 100));
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e] select-none">
+
+      {/* ストリークバナー */}
+      {streakState.showBanner && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div className="px-6 py-3 rounded-2xl font-black text-white text-lg shadow-2xl animate-bounce"
+            style={{ background: "linear-gradient(135deg, #f59e0b, #f472b6)", boxShadow: "0 0 30px rgba(245,158,11,0.7)" }}>
+            🔥 {streakState.streak}日連続プレイ！
+          </div>
+        </div>
+      )}
+
+      {/* デイリーチャレンジバー */}
+      <div className="w-full max-w-[400px] px-3 pt-2">
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="text-[10px] text-purple-400 font-bold">
+            📅 今日のチャレンジ {dailyChallenge.cleared ? "✅ クリア！" : `目標: ${dailyChallenge.target.toLocaleString()}pt`}
+          </span>
+          <span className="text-[10px] text-yellow-400">{dailyChallengeProgress}%</span>
+        </div>
+        <div className="w-full h-1.5 rounded-full" style={{ background: "rgba(167,139,250,0.2)" }}>
+          <div className="h-1.5 rounded-full transition-all duration-500"
+            style={{
+              width: `${dailyChallengeProgress}%`,
+              background: dailyChallenge.cleared
+                ? "linear-gradient(90deg, #34d399, #10b981)"
+                : "linear-gradient(90deg, #a78bfa, #f472b6)",
+            }} />
+        </div>
+      </div>
+
       {/* Header */}
       <div className="w-full max-w-[400px] px-3 pt-3 pb-1 flex items-center justify-between">
         <div className="flex flex-col gap-0.5">
@@ -586,6 +689,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             <div className="text-[10px] font-bold text-emerald-400">
               {currentModeInfo.emoji} {currentModeInfo.label} MODE
             </div>
+          )}
+          {streakState.streak >= 2 && (
+            <div className="text-[10px] font-bold text-amber-400">🔥 {streakState.streak}日連続</div>
           )}
         </div>
         <div className="flex gap-3">
