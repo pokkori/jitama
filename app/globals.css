@@ -15,3 +15,26 @@ body {
 canvas {
   display: block;
 }
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 2s ease-out forwards;
+}

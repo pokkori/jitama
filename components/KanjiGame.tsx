@@ -5,11 +5,20 @@ import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
 import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
 import { useGameSounds } from "@/hooks/useGameSounds";
 
+interface MergeHint {
+  char: string;
+  reading: string;
+  meaning: string;
+  jlpt: string;
+  id: number;
+}
+
 interface GameState {
   score: number;
   nextLevel: number;
   gameOver: boolean;
   highScore: number;
+  mergeHint: MergeHint | null;
 }
 
 interface KanjiGameProps {
@@ -375,11 +384,14 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const { playMerge, playGameOver, playHighScore } = useGameSounds();
+  const hintIdRef = useRef(0);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
     gameOver: false,
     highScore: 0,
+    mergeHint: null,
   });
 
   useEffect(() => {
@@ -411,7 +423,30 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           setState((prev) => ({ ...prev, gameOver: true, highScore: newHs }));
           onGameOverExternal?.(score);
         },
-        (level) => playMerge(level)
+        (level) => {
+          playMerge(level);
+          // Show JLPT study hint in non-"all" modes
+          if (jlptMode !== "all") {
+            const kl = KANJI_LEVELS[level];
+            const id = ++hintIdRef.current;
+            setState((prev) => ({
+              ...prev,
+              mergeHint: {
+                char: kl.char,
+                reading: kl.reading,
+                meaning: kl.meaning,
+                jlpt: kl.jlpt,
+                id,
+              },
+            }));
+            if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+            hintTimerRef.current = setTimeout(() => {
+              setState((prev) =>
+                prev.mergeHint?.id === id ? { ...prev, mergeHint: null } : prev
+              );
+            }, 2000);
+          }
+        }
       );
 
       const config: Phaser.Types.Core.GameConfig = {
@@ -453,7 +488,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       gameRef.current.destroy(true);
       gameRef.current = null;
     }
-    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore });
+    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, mergeHint: null });
     // Re-mount triggers useEffect
     setTimeout(() => {
       window.location.reload();
@@ -518,6 +553,21 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         className="w-[400px] max-w-full"
         style={{ height: 620, position: "relative" }}
       />
+
+      {/* JLPT Study Hint — appears on merge in JLPT modes */}
+      {state.mergeHint && !state.gameOver && (
+        <div
+          key={state.mergeHint.id}
+          className="absolute top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-fade-in-up"
+        >
+          <div className="bg-black/80 backdrop-blur-sm border border-purple-500/60 rounded-xl px-5 py-3 text-center shadow-lg">
+            <div className="text-3xl font-bold text-yellow-300 mb-1">{state.mergeHint.char}</div>
+            <div className="text-sm text-purple-200 font-medium">{state.mergeHint.reading}</div>
+            <div className="text-xs text-purple-400">{state.mergeHint.meaning}</div>
+            <div className="text-[9px] text-purple-500 mt-1">JLPT {state.mergeHint.jlpt}</div>
+          </div>
+        </div>
+      )}
 
       {/* Game Over Overlay */}
       {state.gameOver && (

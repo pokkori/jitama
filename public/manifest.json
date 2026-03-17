@@ -1,0 +1,18 @@
+{
+  "name": "字玉 JITAMA",
+  "short_name": "字玉",
+  "description": "漢字を合体させてスコアを競うパズルゲーム。JLPT学習にも！",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a0a1e",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🀄</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

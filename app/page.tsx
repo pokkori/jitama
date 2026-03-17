@@ -86,7 +86,7 @@ export default function LandingPage() {
               Learn Kanji while playing!
             </p>
             <p className="text-emerald-200/80 text-xs mt-1">
-              Perfect for JLPT prep — choose your level and study as you play 🎮
+              Merge kanji to see readings and meanings — study as you play!
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -120,7 +120,16 @@ export default function LandingPage() {
               );
             })}
           </div>
-          <p className="text-center text-[10px] text-emerald-600 mt-4">
+          <div className="mt-4 bg-white/5 border border-emerald-800/40 rounded-xl px-4 py-3">
+            <p className="text-xs text-emerald-300 font-medium text-center mb-1">
+              JLPTモードの学習機能
+            </p>
+            <p className="text-[11px] text-emerald-200/70 text-center">
+              漢字が合体するたびに読み方と意味が表示されます。<br />
+              遊びながら自然に漢字を覚えられます。
+            </p>
+          </div>
+          <p className="text-center text-[10px] text-emerald-600 mt-3">
             N5 無料 · N4〜N1 プレミアム ¥480/月 · No install needed
           </p>
         </div>

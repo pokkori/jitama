@@ -27,7 +27,7 @@ export default function PremiumButton() {
       {showModal && (
         <PayjpModal
           publicKey={publicKey}
-          planLabel="プレミアムプラン ¥480/月 — 無制限プレイ"
+          planLabel="プレミアムプラン ¥480/月 — 無制限プレイ + JLPT N4〜N1漢字パック"
           onSuccess={handleSuccess}
           onClose={() => setShowModal(false)}
         />

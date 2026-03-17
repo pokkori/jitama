@@ -61,8 +61,8 @@ export default function SuccessPage() {
             <li className="flex items-start gap-3">
               <span className="text-yellow-400 text-xl mt-0.5">✓</span>
               <div>
-                <p className="font-bold text-white">追加漢字パック（近日公開）</p>
-                <p className="text-sm text-purple-300">JLPT N5〜N1の漢字が追加予定</p>
+                <p className="font-bold text-white">JLPT N4〜N1 漢字パック解放</p>
+                <p className="text-sm text-purple-300">JLPTモードで読み・意味を学びながらプレイ</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -97,9 +97,15 @@ export default function SuccessPage() {
         {/* CTA */}
         <Link
           href="/game"
-          className="block w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform mb-4"
+          className="block w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform mb-3"
         >
           ゲームを始める →
+        </Link>
+        <Link
+          href="/game?mode=N4"
+          className="block w-full bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-base py-3 rounded-2xl hover:scale-105 transition-transform mb-4"
+        >
+          JLPT N4モードで遊ぶ →
         </Link>
         <Link href="/" className="text-sm text-purple-400 hover:text-purple-300 underline">
           トップページに戻る
