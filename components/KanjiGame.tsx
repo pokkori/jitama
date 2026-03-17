@@ -385,6 +385,8 @@ function createGameScene(
   };
 }
 
+const JITAMA_MAX_LEVEL = 11; // 「字」が最大レベル
+
 // ─── React Component ──────────────────────────────────────────────────────────
 
 export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "all" }: KanjiGameProps = {}) {
@@ -394,6 +396,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const { playMerge, playGameOver, playHighScore } = useGameSounds();
   const hintIdRef = useRef(0);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showJiCelebration, setShowJiCelebration] = useState(false);
+  const [jiShown, setJiShown] = useState(false);
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -403,6 +409,14 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     ranking: [],
     newRank: null,
   });
+
+  // 初回チュートリアル表示
+  useEffect(() => {
+    const seen = localStorage.getItem("jitama_tutorial_seen");
+    if (!seen) {
+      setShowTutorial(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -457,6 +471,16 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         },
         (level) => {
           playMerge(level);
+          // 「字」（最大レベル）到達チェック
+          if (level >= JITAMA_MAX_LEVEL) {
+            setJiShown((prev) => {
+              if (!prev) {
+                setTimeout(() => setShowJiCelebration(true), 300);
+                return true;
+              }
+              return prev;
+            });
+          }
           // Show JLPT study hint in non-"all" modes
           if (jlptMode !== "all") {
             const kl = KANJI_LEVELS[level];
@@ -545,6 +569,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   };
 
   const nextKanji = KANJI_LEVELS[state.nextLevel];
+
+  const tutorialSteps = [
+    { icon: "👆", title: "タップして漢字を落とそう", desc: "好きな位置をタップすると漢字ボールが落下します" },
+    { icon: "✨", title: "同じ漢字が触れると合体！", desc: "同じ漢字同士が合体して次の漢字に進化します" },
+    { icon: "🏆", title: "「字」を目指せ！", desc: "「一」から「字」まで12段階。最高漢字を出そう！" },
+  ];
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e] select-none">
@@ -648,6 +678,120 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 setState((prev) => ({ ...prev, ranking: [], newRank: null }));
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* 初回チュートリアルオーバーレイ */}
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black/75 z-50 flex items-end justify-center pb-8 px-4"
+          style={{ backdropFilter: "blur(4px)" }}>
+          <div className="w-full max-w-sm bg-[#1a0a2e] border border-purple-500 rounded-2xl p-6 shadow-2xl">
+            <div className="text-center mb-4">
+              <div className="text-4xl mb-2">{tutorialSteps[tutorialStep].icon}</div>
+              <h2 className="text-xl font-black text-yellow-300 mb-1">
+                {tutorialSteps[tutorialStep].title}
+              </h2>
+              <p className="text-purple-200 text-sm">{tutorialSteps[tutorialStep].desc}</p>
+            </div>
+            {/* ステップインジケーター */}
+            <div className="flex justify-center gap-2 mb-5">
+              {tutorialSteps.map((_, i) => (
+                <div key={i} className="w-2 h-2 rounded-full transition-all"
+                  style={{ background: i === tutorialStep ? "#fbbf24" : "rgba(167,139,250,0.4)" }} />
+              ))}
+            </div>
+            {/* Arrow overlay hint */}
+            {tutorialStep === 0 && (
+              <div className="flex items-center justify-center mb-4">
+                <div className="text-5xl animate-bounce text-yellow-300">👆</div>
+                <div className="ml-3 text-purple-300 text-sm font-bold">↑ ここをタップ！</div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              {tutorialStep > 0 && (
+                <button onClick={() => setTutorialStep(s => s - 1)}
+                  className="flex-1 py-2 rounded-xl text-sm text-purple-400 border border-purple-700">
+                  ← 戻る
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (tutorialStep < tutorialSteps.length - 1) {
+                    setTutorialStep(s => s + 1);
+                  } else {
+                    localStorage.setItem("jitama_tutorial_seen", "1");
+                    setShowTutorial(false);
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl font-black text-[#1a0a2e] transition-all active:scale-95"
+                style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}
+              >
+                {tutorialStep < tutorialSteps.length - 1 ? "次へ →" : "さあ遊ぼう！🀄"}
+              </button>
+            </div>
+            <button onClick={() => { localStorage.setItem("jitama_tutorial_seen", "1"); setShowTutorial(false); }}
+              className="w-full mt-2 text-xs text-purple-600 hover:text-purple-400">
+              スキップ
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 「字」到達 花火セレブレーション */}
+      {showJiCelebration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+          style={{ backdropFilter: "blur(4px)" }}>
+          <style>{`
+            @keyframes ji-firework-1 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(-100px,-150px);opacity:0} }
+            @keyframes ji-firework-2 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(110px,-140px);opacity:0} }
+            @keyframes ji-firework-3 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(-60px,-190px);opacity:0} }
+            @keyframes ji-firework-4 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(80px,-180px);opacity:0} }
+            @keyframes ji-firework-5 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(-130px,-80px);opacity:0} }
+            @keyframes ji-firework-6 { 0%{transform:translate(0,0);opacity:1} 100%{transform:translate(140px,-70px);opacity:0} }
+            .ji-p { position:absolute; width:12px; height:12px; border-radius:50%; }
+            .ji-p1 { background:#f472b6; animation:ji-firework-1 1.0s ease-out infinite; }
+            .ji-p2 { background:#fbbf24; animation:ji-firework-2 1.1s ease-out infinite 0.1s; }
+            .ji-p3 { background:#a78bfa; animation:ji-firework-3 1.2s ease-out infinite 0.2s; }
+            .ji-p4 { background:#34d399; animation:ji-firework-4 1.0s ease-out infinite 0.15s; }
+            .ji-p5 { background:#60a5fa; animation:ji-firework-5 1.3s ease-out infinite 0.05s; }
+            .ji-p6 { background:#fb923c; animation:ji-firework-6 1.1s ease-out infinite 0.25s; }
+          `}</style>
+          <div className="relative rounded-2xl p-6 w-full max-w-xs text-center shadow-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(160deg, #1a0a2e, #2d1b69)",
+              border: "2px solid rgba(244,114,182,0.6)",
+              boxShadow: "0 0 60px rgba(244,114,182,0.4)",
+            }}>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+              <div className="relative">
+                <div className="ji-p ji-p1" /><div className="ji-p ji-p2" />
+                <div className="ji-p ji-p3" /><div className="ji-p ji-p4" />
+                <div className="ji-p ji-p5" /><div className="ji-p ji-p6" />
+              </div>
+            </div>
+            <div className="relative z-10">
+              <div className="text-7xl font-black mb-2" style={{ color: "#f472b6", textShadow: "0 0 30px rgba(244,114,182,0.9)" }}>字</div>
+              <h2 className="text-2xl font-black mb-1 text-yellow-300">最大漢字に到達！</h2>
+              <p className="text-purple-200 text-sm mb-1 font-bold">字玉マスター達成！🀄</p>
+              <p className="text-purple-400 text-xs mb-4">「一」から「字」まで全てコンプリート！</p>
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎉 字玉JITAMAで最大漢字「字」に到達しました！スコア${state.score}点！漢字合体パズルの最高到達点です🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`)}`}
+                target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm mb-3 transition-all active:scale-95"
+                style={{ background: "#000" }}
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                達成をXで自慢する 🎊
+              </a>
+              <button onClick={() => setShowJiCelebration(false)}
+                className="w-full py-2 rounded-xl font-bold text-[#1a0a2e] text-sm active:scale-95"
+                style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}>
+                ゲームを続ける →
+              </button>
+            </div>
           </div>
         </div>
       )}
