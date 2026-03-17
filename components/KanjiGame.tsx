@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
 import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
+import { useGameSounds } from "@/hooks/useGameSounds";
 
 interface GameState {
   score: number;
@@ -23,7 +24,8 @@ interface KanjiGameProps {
 function createGameScene(
   onScoreUpdate: (score: number) => void,
   onNextPiece: (level: number) => void,
-  onGameOver: (score: number) => void
+  onGameOver: (score: number) => void,
+  onMerge: (level: number) => void
 ) {
   // We import Phaser types dynamically so we cast as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -252,6 +254,7 @@ function createGameScene(
         const pts = KANJI_LEVELS[newLevel].score;
         this.score += pts;
         onScoreUpdate(this.score);
+        onMerge(newLevel);
       });
     }
 
@@ -371,6 +374,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const currentModeInfo = JLPT_MODES.find((m) => m.key === jlptMode) ?? JLPT_MODES[0];
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
+  const { playMerge, playGameOver, playHighScore } = useGameSounds();
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -402,9 +406,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           const hs = Number(localStorage.getItem("jitama_hs") ?? "0");
           const newHs = Math.max(hs, score);
           localStorage.setItem("jitama_hs", String(newHs));
+          if (score >= newHs) playHighScore();
+          else playGameOver();
           setState((prev) => ({ ...prev, gameOver: true, highScore: newHs }));
           onGameOverExternal?.(score);
-        }
+        },
+        (level) => playMerge(level)
       );
 
       const config: Phaser.Types.Core.GameConfig = {
