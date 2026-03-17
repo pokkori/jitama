@@ -607,32 +607,38 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 overflow-y-auto py-4">
           <div className="bg-[#1a0a2e]/95 border border-purple-500 rounded-2xl p-6 text-center w-full max-w-sm mx-4">
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
-            <p className="text-yellow-300 text-2xl font-bold mb-1">{state.score.toLocaleString()} pt</p>
+            <p className="text-yellow-300 text-3xl font-black mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (
-              <p className="text-pink-400 text-sm font-bold mb-1">🎉 NEW HIGH SCORE!</p>
+              <p className="text-pink-400 text-sm font-bold mb-1 animate-pulse">🎉 NEW HIGH SCORE!</p>
             )}
             {state.newRank !== null && (
               <p className="text-emerald-400 text-xs font-bold mb-1">
                 ランキング {state.newRank}位に登録されました！
               </p>
             )}
-            <p className="text-purple-300 text-xs mb-3">あなたのスコアは何位？友達と競おう！</p>
+            <p className="text-purple-300 text-xs mb-4">あなたのスコアは何位？友達と競おう！</p>
+
+            {/* もう一回ボタンを最上部・最大サイズで表示 */}
+            <button
+              onClick={handleRestart}
+              className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-black text-xl py-4 rounded-2xl mb-3 shadow-lg shadow-pink-900/50 active:scale-95 transition-transform"
+            >
+              🀄 もう一回！
+            </button>
+
             <button
               onClick={handleShare}
-              className="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 rounded-xl mb-2"
+              className="w-full bg-black hover:bg-gray-900 text-white font-bold py-3 rounded-xl mb-2 flex items-center justify-center gap-2 transition-colors"
             >
-              スコアをXでシェア 🐦
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              スコアをXでシェアして自慢する
             </button>
             {/* 広告表示エリア（AdSense申請後に有効化） */}
             <div id="ad-container" className="w-full min-h-[60px] my-2 flex items-center justify-center">
               {/* Google AdSense広告がここに表示されます */}
             </div>
-            <button
-              onClick={handleRestart}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl mb-4"
-            >
-              もう一回遊ぶ
-            </button>
 
             {/* ローカルランキング */}
             <LocalRanking
