@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { KANJI_LEVELS } from "@/lib/kanji-data";
 import { JLPT_MODES } from "@/lib/jlpt";
 import PremiumButton from "@/components/PremiumButton";
@@ -9,7 +10,15 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-[#1a0a2e] text-white">
       {/* Hero */}
-      <section className="max-w-lg mx-auto px-4 pt-16 pb-10 text-center">
+      <section className="max-w-lg mx-auto px-4 pt-10 pb-10 text-center">
+        <Image
+          src="/images/mascot.png"
+          alt="字玉マスコット"
+          width={120}
+          height={120}
+          className="mx-auto mb-4"
+          priority
+        />
         <div className="text-7xl font-bold mb-2 tracking-tight">
           <span className="text-yellow-300">字</span>
           <span className="text-pink-400">玉</span>
@@ -31,6 +40,18 @@ export default function LandingPage() {
           今すぐ遊ぶ（無料）
         </Link>
         <p className="text-xs text-purple-400 mt-3">インストール不要・ブラウザで遊べる</p>
+
+        {/* Hero banner */}
+        <div className="mt-8 rounded-2xl overflow-hidden shadow-lg shadow-purple-900/50">
+          <Image
+            src="/images/hero.png"
+            alt="字玉 JITAMA ゲーム画面"
+            width={640}
+            height={360}
+            className="w-full h-auto"
+            priority
+          />
+        </div>
       </section>
 
       {/* Kanji progression */}
@@ -59,6 +80,15 @@ export default function LandingPage() {
       {/* How to play */}
       <section className="max-w-lg mx-auto px-4 py-8">
         <h2 className="text-center text-lg font-bold mb-6">遊び方</h2>
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/images/merge_effect.png"
+            alt="漢字が合体するエフェクト"
+            width={160}
+            height={160}
+            className="rounded-2xl shadow-lg shadow-yellow-900/30"
+          />
+        </div>
         <div className="grid grid-cols-3 gap-4">
           {[
             { icon: "👆", title: "タップで落とす", desc: "好きな位置をタップして漢字を落とす" },
@@ -78,7 +108,10 @@ export default function LandingPage() {
       <section className="max-w-lg mx-auto px-4 py-8">
         <div className="bg-gradient-to-br from-emerald-900/50 to-teal-900/50 border border-emerald-700/60 rounded-2xl p-6">
           <div className="text-center mb-5">
-            <div className="text-3xl mb-2">🎌</div>
+            <div className="flex justify-center gap-3 mb-3">
+              <Image src="/images/jlpt_n5_badge.png" alt="JLPT N5" width={48} height={48} />
+              <Image src="/images/jlpt_n1_badge.png" alt="JLPT N1" width={48} height={48} />
+            </div>
             <h2 className="text-lg font-bold text-white mb-1">
               JLPTモードで漢字を学ぼう
             </h2>
