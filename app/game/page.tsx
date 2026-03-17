@@ -5,6 +5,7 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import PayjpModal from "@/components/PayjpModal";
+import KanjiQuiz from "@/components/KanjiQuiz";
 import { JLPT_MODES, type JlptLevel } from "@/lib/jlpt";
 
 const KanjiGame = dynamic(() => import("@/components/KanjiGame"), {
@@ -78,6 +79,8 @@ function JLPTPaywall({ onClose, onOpenPayjp }: { onClose: () => void; onOpenPayj
   );
 }
 
+type GameTab = "merge" | "quiz";
+
 function GamePageInner() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [showLimitDialog, setShowLimitDialog] = useState(false);
@@ -85,6 +88,7 @@ function GamePageInner() {
   const [showJlptPaywall, setShowJlptPaywall] = useState(false);
   const [playCount, setPlayCount] = useState(0);
   const [showModeSelect, setShowModeSelect] = useState(false);
+  const [activeTab, setActiveTab] = useState<GameTab>("merge");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -178,26 +182,56 @@ function GamePageInner() {
         </div>
       )}
 
-      {/* JLPT Mode Indicator Bar */}
-      <div className="w-full max-w-[400px] bg-[#1a0a2e]/90 border-b border-purple-800/50 px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{currentModeInfo.emoji}</span>
-          <span className="text-xs text-purple-200 font-medium">{currentModeInfo.label}</span>
-          {currentMode !== "all" && (
-            <span className="text-[10px] bg-purple-700/60 text-purple-200 px-2 py-0.5 rounded-full">
-              {currentModeInfo.descriptionEn}
-            </span>
-          )}
-        </div>
+      {/* Tab Switcher */}
+      <div className="w-full max-w-[400px] flex border-b border-purple-800">
         <button
-          onClick={() => setShowModeSelect(true)}
-          className="text-xs text-purple-400 hover:text-purple-200 border border-purple-700 hover:border-purple-500 px-3 py-1 rounded-full transition-colors"
+          onClick={() => setActiveTab("merge")}
+          className={`flex-1 py-2.5 text-sm font-bold transition-colors ${
+            activeTab === "merge"
+              ? "text-yellow-300 border-b-2 border-yellow-300"
+              : "text-purple-400 hover:text-purple-200"
+          }`}
         >
-          モード変更
+          🀄 マージゲーム
+        </button>
+        <button
+          onClick={() => setActiveTab("quiz")}
+          className={`flex-1 py-2.5 text-sm font-bold transition-colors ${
+            activeTab === "quiz"
+              ? "text-yellow-300 border-b-2 border-yellow-300"
+              : "text-purple-400 hover:text-purple-200"
+          }`}
+        >
+          🎌 漢字クイズ
         </button>
       </div>
 
-      <KanjiGame onGameOver={handleGameOver} jlptMode={currentMode} />
+      {/* JLPT Mode Indicator Bar — Merge mode only */}
+      {activeTab === "merge" && (
+        <div className="w-full max-w-[400px] bg-[#1a0a2e]/90 border-b border-purple-800/50 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{currentModeInfo.emoji}</span>
+            <span className="text-xs text-purple-200 font-medium">{currentModeInfo.label}</span>
+            {currentMode !== "all" && (
+              <span className="text-[10px] bg-purple-700/60 text-purple-200 px-2 py-0.5 rounded-full">
+                {currentModeInfo.descriptionEn}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setShowModeSelect(true)}
+            className="text-xs text-purple-400 hover:text-purple-200 border border-purple-700 hover:border-purple-500 px-3 py-1 rounded-full transition-colors"
+          >
+            モード変更
+          </button>
+        </div>
+      )}
+
+      {activeTab === "merge" ? (
+        <KanjiGame onGameOver={handleGameOver} jlptMode={currentMode} />
+      ) : (
+        <KanjiQuiz isPremium={isPremium ?? false} onOpenPayjp={() => setShowPayjpModal(true)} />
+      )}
 
       {/* Mode Selection Dialog */}
       {showModeSelect && (
