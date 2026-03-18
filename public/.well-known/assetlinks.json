@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "jp.pokkori.jitama",
+    "sha256_cert_fingerprints": [
+      "CB:46:74:DF:21:C4:1D:A6:08:CC:5F:B8:D9:4D:15:3E:B2:4D:F4:5F:58:74:CE:61:B2:AA:E6:73:06:9D:74:BD"
+    ]
+  }
+}]

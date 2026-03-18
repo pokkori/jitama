@@ -224,22 +224,36 @@ export default function LandingPage() {
         </Link>
       </section>
 
-      {/* BASEアフィリエイト */}
+      {/* A8.netアフィリエイト：ハンドメイド・BASE */}
       <section className="max-w-lg mx-auto px-4 pb-6">
         <div className="bg-yellow-950/40 border border-yellow-600/40 rounded-2xl p-4">
-          <p className="text-sm font-bold text-yellow-300 mb-3">🛒 ゲームが好きなら創作活動も！BASEで無料開業</p>
-          <a
-            href="https://px.a8.net/svt/ejp?a8mat=4AZIOF+8ZAE9E+2QQG+62MDD"
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            className="flex items-center justify-between bg-yellow-400/10 border border-yellow-500/40 rounded-xl px-4 py-3 hover:bg-yellow-400/20 transition-colors"
-          >
-            <div>
-              <div className="text-sm font-bold text-yellow-200">BASE（ベイス）で無料ネットショップ開業</div>
-              <div className="text-xs text-yellow-400/70">初期費用・月額0円 • 最短5分で開設 • 35万店以上が利用</div>
-            </div>
-            <span className="text-yellow-300 font-bold text-xs bg-yellow-500/20 border border-yellow-500/40 px-2 py-1 rounded-full shrink-0">無料で始める →</span>
-          </a>
+          <p className="text-sm font-bold text-yellow-300 mb-3">🎨 ゲームが好きなら創作活動も（PR）</p>
+          <div className="space-y-2">
+            <a
+              href="https://px.a8.net/svt/ejp?a8mat=4AZIOF+8PRGKY+4V0U+BXB8Z"
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              className="flex items-center justify-between bg-pink-400/10 border border-pink-500/40 rounded-xl px-4 py-3 hover:bg-pink-400/20 transition-colors"
+            >
+              <div>
+                <div className="text-sm font-bold text-pink-200">ハンドメイドチャンネル — 手作りを仕事に</div>
+                <div className="text-xs text-pink-400/70">ハンドメイド作家を目指すオンラインスクール • 無料体験あり</div>
+              </div>
+              <span className="text-pink-300 font-bold text-xs bg-pink-500/20 border border-pink-500/40 px-2 py-1 rounded-full shrink-0">無料体験 →</span>
+            </a>
+            <a
+              href="https://px.a8.net/svt/ejp?a8mat=4AZIOF+8ZAE9E+2QQG+62MDD"
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              className="flex items-center justify-between bg-yellow-400/10 border border-yellow-500/40 rounded-xl px-4 py-3 hover:bg-yellow-400/20 transition-colors"
+            >
+              <div>
+                <div className="text-sm font-bold text-yellow-200">BASE（ベイス）で無料ネットショップ開業</div>
+                <div className="text-xs text-yellow-400/70">初期費用・月額0円 • 最短5分で開設 • 35万店以上が利用</div>
+              </div>
+              <span className="text-yellow-300 font-bold text-xs bg-yellow-500/20 border border-yellow-500/40 px-2 py-1 rounded-full shrink-0">無料で始める →</span>
+            </a>
+          </div>
           <p className="text-xs text-purple-500 text-center mt-2">※ 広告・PR掲載</p>
         </div>
       </section>
