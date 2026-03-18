@@ -11,7 +11,7 @@ export default function Legal() {
         <div><dt className="text-purple-400">サービス名</dt><dd>字玉 JITAMA</dd></div>
         <div><dt className="text-purple-400">無料プラン</dt><dd>ゲームプレイ無制限（無料）</dd></div>
         <div><dt className="text-purple-400">有料プラン</dt><dd>プレミアム ¥480/月（全部首パック・オンラインランキング）</dd></div>
-        <div><dt className="text-purple-400">支払方法</dt><dd>クレジットカード（PAY.JP）</dd></div>
+        <div><dt className="text-purple-400">支払方法</dt><dd>クレジットカード（オンライン決済サービス）</dd></div>
         <div><dt className="text-purple-400">解約方法</dt><dd>マイページより随時解約可能。解約月末で終了。</dd></div>
         <div><dt className="text-purple-400">返金ポリシー</dt><dd>デジタルコンテンツの性質上、原則返金不可。</dd></div>
       </dl>
