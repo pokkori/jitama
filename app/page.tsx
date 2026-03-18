@@ -225,6 +225,27 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 感情フック */}
+      <section className="max-w-lg mx-auto px-4 py-8">
+        <h2 className="text-center text-base font-bold text-purple-300 mb-5">こんな経験ありませんか？</h2>
+        <div className="space-y-3">
+          {[
+            { icon: "😓", text: "漢字を勉強しようとしてもドリルが退屈で続かない..." },
+            { icon: "😤", text: "JLPT対策の単語帳を買ったけど、結局放置している..." },
+            { icon: "💭", text: "楽しみながら自然に漢字を覚えられたらいいのに..." },
+          ].map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: "12px", padding: "12px 14px" }}>
+              <span style={{ fontSize: "22px" }}>{item.icon}</span>
+              <p style={{ color: "#e9d5ff", fontSize: "13px", fontWeight: "500" }}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: "16px", background: "linear-gradient(135deg, #7c3aed, #db2777)", borderRadius: "16px", padding: "16px", textAlign: "center" }}>
+          <p style={{ color: "#fff", fontWeight: "700", fontSize: "14px", marginBottom: "4px" }}>字玉JITAMAがその悩みを解決！</p>
+          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "12px" }}>ゲーム感覚で漢字合体。遊ぶほど語彙力アップ！</p>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="max-w-lg mx-auto px-4 pb-8">
         <h2 className="text-center text-base font-bold text-purple-300 mb-4">よくある質問</h2>
