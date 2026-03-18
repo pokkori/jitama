@@ -1,0 +1,48 @@
+{
+  "packageId": "jp.pokkori.jitama",
+  "host": "jitama.vercel.app",
+  "name": "字玉 JITAMA",
+  "launcherName": "字玉",
+  "display": "standalone",
+  "themeColor": "#7C3AED",
+  "themeColorDark": "#000000",
+  "navigationColor": "#7C3AED",
+  "navigationColorDark": "#1A0A1E",
+  "navigationDividerColor": "#7C3AED",
+  "navigationDividerColorDark": "#1A0A1E",
+  "backgroundColor": "#1A0A1E",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://jitama.vercel.app/icons/icon-512x512.png",
+  "maskableIconUrl": "https://jitama.vercel.app/icons/icon-512x512.png",
+  "monochromeIconUrl": "https://jitama.vercel.app/icons/icon-512x512.png",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "2",
+  "appVersionCode": 2,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://jitama.vercel.app/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "name": "android",
+      "value": "CB:46:74:DF:21:C4:1D:A6:08:CC:5F:B8:D9:4D:15:3E:B2:4D:F4:5F:58:74:CE:61:B2:AA:E6:73:06:9D:74:BD"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "2"
+}

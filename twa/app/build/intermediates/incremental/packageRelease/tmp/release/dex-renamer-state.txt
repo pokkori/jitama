@@ -1,0 +1,4 @@
+#Wed Mar 18 22:47:54 JST 2026
+base.0=D\:\\99_Webアプリ\\漢字マージ\\twa\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
