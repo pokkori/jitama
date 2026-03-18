@@ -39,7 +39,11 @@ export default function LandingPage() {
         >
           今すぐ遊ぶ（無料）
         </Link>
-        <p className="text-xs text-purple-400 mt-3">インストール不要・ブラウザで遊べる</p>
+        <div className="flex justify-center gap-2 flex-wrap mt-3">
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">📱 アプリ不要</span>
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">🌐 ブラウザで今すぐ</span>
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">✨ 無料で遊べる</span>
+        </div>
 
         {/* Hero banner */}
         <div className="mt-8 rounded-2xl overflow-hidden shadow-lg shadow-purple-900/50">
