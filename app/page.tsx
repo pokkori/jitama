@@ -218,7 +218,28 @@ export default function LandingPage() {
             <li>✓ 字玉の開発を応援</li>
           </ul>
           <PremiumButton />
-          <p className="text-xs text-purple-500 mt-3">いつでも解約可能・クレジットカード払い</p>
+          <div className="flex items-center justify-center gap-3 mt-3 text-xs">
+            <span className="text-purple-400">✅ いつでも解約可</span>
+            <span className="text-green-400 font-bold">🛡️ 30日返金保証</span>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="max-w-lg mx-auto px-4 pb-8">
+        <h2 className="text-center text-base font-bold text-purple-300 mb-4">よくある質問</h2>
+        <div className="space-y-3">
+          {([
+            { q: "字玉JITAMAとはどんなゲームですか？", a: "漢字が合体して進化するパズルゲームです。同じ漢字を隣接させると合体して新しい漢字に！どこまで大きな漢字に育てられるか挑戦してください。" },
+            { q: "漢字の勉強になりますか？", a: "なります！ゲームを通じてJLPT N5〜N1レベルの漢字に自然に触れることができます。楽しみながら語彙力アップ。" },
+            { q: "1日何回遊べますか？", a: "無料プランでは1日3回まで。プレミアムプランでは無制限にプレイできます。JLPT漢字パックも解放されます。" },
+            { q: "どんな漢字まで進化しますか？", a: "N5の基本漢字から始まり、合体を重ねることでN1レベルの難しい漢字まで進化します。全何段階かは探してのお楽しみ！" },
+          ] as { q: string; a: string }[]).map((faq, i) => (
+            <div key={i} style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "12px 14px" }}>
+              <p style={{ color: "#c084fc", fontWeight: "600", fontSize: "13px", marginBottom: "5px" }}>Q. {faq.q}</p>
+              <p style={{ color: "rgba(192,132,252,0.6)", fontSize: "12px" }}>A. {faq.a}</p>
+            </div>
+          ))}
         </div>
       </section>
 
