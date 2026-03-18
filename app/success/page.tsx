@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const [showConfetti, setShowConfetti] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setShowConfetti(true);
     const timer = setTimeout(() => setShowConfetti(false), 4000);
+    // Komoju session verify
+    const sessionId = searchParams.get("session_id");
+    if (sessionId) {
+      fetch(`/api/komoju/verify?session_id=${sessionId}`).catch(() => {});
+    }
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#1a0a2e] text-white flex items-center justify-center px-4">
+    <>
       {/* Simple CSS confetti effect */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
@@ -111,6 +119,16 @@ export default function SuccessPage() {
           トップページに戻る
         </Link>
       </div>
+    </>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <main className="min-h-screen bg-[#1a0a2e] text-white flex items-center justify-center px-4">
+      <Suspense fallback={<p className="text-purple-400">読み込み中...</p>}>
+        <SuccessContent />
+      </Suspense>
     </main>
   );
 }
