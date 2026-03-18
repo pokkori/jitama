@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import PayjpModal from "@/components/PayjpModal";
+import KomojuButton from "@/components/KomojuButton";
 import KanjiQuiz from "@/components/KanjiQuiz";
 import { JLPT_MODES, type JlptLevel } from "@/lib/jlpt";
 
@@ -51,7 +51,7 @@ function incrementPlayCount(): number {
 // JLPT levels that require premium
 const PREMIUM_JLPT_MODES: JlptLevel[] = ["N4", "N3_N1"];
 
-function JLPTPaywall({ onClose, onOpenPayjp }: { onClose: () => void; onOpenPayjp: () => void }) {
+function JLPTPaywall({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl">
@@ -65,13 +65,12 @@ function JLPTPaywall({ onClose, onOpenPayjp }: { onClose: () => void; onOpenPayj
           <li>✓ N4 / N3〜N1 上級漢字パック解放</li>
           <li>✓ 字玉の開発を応援</li>
         </ul>
-        <button
-          onClick={onOpenPayjp}
-          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl mb-2 transition-colors"
-        >
-          ¥480/月で解放する
-        </button>
-        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">
+        <KomojuButton
+          planId="standard"
+          planLabel="¥480/月で解放する"
+          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl mb-2 transition-colors disabled:opacity-50"
+        />
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600 mt-2 block w-full">
           閉じる
         </button>
       </div>
@@ -148,7 +147,6 @@ function GamePageInner() {
     router.push(`/game?mode=${mode}`);
   };
 
-  const publicKey = process.env.NEXT_PUBLIC_PAYJP_PUBLIC_KEY ?? "";
 
   if (isPremium === null) {
     return (
@@ -353,21 +351,29 @@ function GamePageInner() {
               router.push("/game?mode=N5");
             }
           }}
-          onOpenPayjp={() => {
-            setShowJlptPaywall(false);
-            setShowPayjpModal(true);
-          }}
         />
       )}
 
-      {/* PAY.JP Modal */}
+      {/* Komoju Payment Modal */}
       {showPayjpModal && (
-        <PayjpModal
-          publicKey={publicKey}
-          planLabel="プレミアムプラン ¥480/月 — 無制限プレイ + JLPT N4〜N1漢字パック"
-          onSuccess={handlePaySuccess}
-          onClose={() => setShowPayjpModal(false)}
-        />
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl relative">
+            <button
+              onClick={() => setShowPayjpModal(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+            >
+              ✕
+            </button>
+            <div className="text-4xl mb-3">🀄</div>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">プレミアムプランに登録</h2>
+            <p className="text-sm text-gray-500 mb-4">月額¥480で無制限プレイ + JLPT N4〜N1漢字パック</p>
+            <KomojuButton
+              planId="standard"
+              planLabel="¥480/月で解放する"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
+            />
+          </div>
+        </div>
       )}
     </div>
   );
