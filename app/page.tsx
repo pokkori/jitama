@@ -194,6 +194,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 字玉をもっと楽しむ3選 */}
+      <section className="max-w-lg mx-auto px-4 py-6">
+        <h2 className="text-sm font-bold text-purple-400 mb-4 text-center">📋 字玉をもっと楽しむ3選</h2>
+        <ol className="space-y-3">
+          {[
+            { icon: "🀄", title: "JLPT N1漢字を全制覇", desc: "最上位の漢字「覇」まで合体できればN1レベル！漢字の学習にも使えます。" },
+            { icon: "🏆", title: "友達と最高スコアを競う", desc: "ゲームオーバー後にXでスコアをシェアして、誰が一番合体できるか競争しよう。" },
+            { icon: "🎯", title: "毎日5分の脳トレとして", desc: "隙間時間の漢字パズル。毎日プレイすると漢字力・空間認識力が鍛えられます。" },
+          ].map((item, i) => (
+            <li key={i} className="flex items-start gap-3 bg-white/5 border border-purple-800/40 rounded-xl p-3">
+              <span className="text-2xl leading-none">{item.icon}</span>
+              <div>
+                <div className="text-sm font-bold text-purple-200">{i + 1}. {item.title}</div>
+                <div className="text-xs text-purple-400 mt-0.5">{item.desc}</div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       {/* CTA */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <Link
