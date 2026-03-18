@@ -271,6 +271,8 @@ export default function LandingPage() {
           <Link href="/legal" className="underline hover:text-purple-300">特商法</Link>
           {" "}·{" "}
           <Link href="/privacy" className="underline hover:text-purple-300">プライバシー</Link>
+          {" "}·{" "}
+          <Link href="/terms" className="underline hover:text-purple-300">利用規約</Link>
         </p>
       </section>
     </main>
