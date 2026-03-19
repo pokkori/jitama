@@ -5,9 +5,10 @@ export default function Legal() {
     <main className="max-w-2xl mx-auto px-6 py-12 text-white">
       <h1 className="text-2xl font-bold mb-8">特定商取引法に基づく表記</h1>
       <dl className="space-y-4 text-sm">
-        <div><dt className="text-purple-400">販売事業者</dt><dd>ポッコリラボ</dd></div>
+        <div><dt className="text-purple-400">販売事業者</dt><dd>新美諭</dd></div>
         <div><dt className="text-purple-400">運営責任者</dt><dd>ポッコリラボ 代表 新美</dd></div>
-        <div><dt className="text-purple-400">お問い合わせ</dt><dd>X(Twitter) @levona_design へのDM</dd></div>
+        <div><dt className="text-purple-400">電話番号</dt><dd>090-6093-5290</dd></div>
+        <div><dt className="text-purple-400">お問い合わせ</dt><dd>levonadesign@gmail.com（X: @levona_design）</dd></div>
         <div><dt className="text-purple-400">サービス名</dt><dd>字玉 JITAMA</dd></div>
         <div><dt className="text-purple-400">無料プラン</dt><dd>ゲームプレイ無制限（無料）</dd></div>
         <div><dt className="text-purple-400">有料プラン</dt><dd>プレミアム ¥480/月（全部首パック・オンラインランキング）</dd></div>
