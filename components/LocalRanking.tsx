@@ -3,6 +3,7 @@
 import { getRankFromScore } from "@/lib/ranking-utils";
 
 export interface RankingEntry {
+  name: string;
   score: number;
   date: string;
   level: string;
@@ -16,7 +17,9 @@ export function loadRanking(): RankingEntry[] {
   try {
     const raw = localStorage.getItem(RANKING_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as RankingEntry[];
+    const parsed = JSON.parse(raw) as RankingEntry[];
+    // migrate old entries that have no name
+    return parsed.map((e) => ({ name: e.name ?? "名無し", ...e }));
   } catch {
     return [];
   }
@@ -33,7 +36,7 @@ export function saveToRanking(entry: RankingEntry): number | null {
   const trimmed = combined.slice(0, MAX_ENTRIES);
   localStorage.setItem(RANKING_KEY, JSON.stringify(trimmed));
   const rank = trimmed.findIndex(
-    (e) => e.score === entry.score && e.date === entry.date
+    (e) => e.score === entry.score && e.date === entry.date && e.name === entry.name
   );
   return rank >= 0 ? rank + 1 : null;
 }
@@ -89,7 +92,7 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
     <div className="w-full mt-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-bold text-purple-300 uppercase tracking-wide flex items-center gap-1">
-          🏆 自己ベストランキング
+          🏆 名前入りランキング TOP10
         </p>
         <button
           onClick={onReset}
@@ -128,6 +131,9 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-white truncate max-w-[80px]">
+                      {entry.name}
+                    </span>
                     <span className="text-sm font-black text-yellow-300">
                       {entry.score.toLocaleString()} pt
                     </span>

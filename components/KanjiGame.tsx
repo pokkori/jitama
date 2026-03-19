@@ -77,6 +77,8 @@ interface GameState {
   ranking: RankingEntry[];
   newRank: number | null; // 今回の順位（null = ランク外 or まだゲーム中）
   showRankUpBanner: boolean; // 段位アップバナー表示フラグ
+  pendingScore: number | null; // ニックネーム入力待ちのスコア
+  nicknameSaved: boolean; // ニックネーム登録完了フラグ
 }
 
 interface StreakState {
@@ -463,6 +465,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const [jiShown, setJiShown] = useState(false);
   const [streakState, setStreakState] = useState<StreakState>({ streak: 0, showBanner: false });
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge>({ target: 2000, best: 0, cleared: false });
+  const [nickname, setNickname] = useState<string>("");
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -473,6 +476,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     ranking: [],
     newRank: null,
     showRankUpBanner: false,
+    pendingScore: null,
+    nicknameSaved: false,
   });
 
   // 初回チュートリアル表示
@@ -522,32 +527,20 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           saveDailyChallengeScore(score);
           setDailyChallenge(getDailyChallengeStatus());
 
-          // ── ランキング保存 ──────────────────────────────────────────────
-          const entry: RankingEntry = {
-            score,
-            date: new Date().toLocaleDateString("ja-JP", {
-              month: "numeric",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            level: jlptMode === "all" ? "全漢字" : jlptMode === "N5" ? "N5" : jlptMode === "N4" ? "N4" : "N3-N1",
-          };
-          const rank = saveToRanking(entry);
-          const updatedRanking = loadRanking();
-          // ───────────────────────────────────────────────────────────────
-
           // 段位アップ判定
           const rankUp = didRankUp(hs, newHs);
 
+          // ── ニックネーム入力待ちに移行（ランキング保存は名前入力後）──
           setState((prev) => ({
             ...prev,
             gameOver: true,
             highScore: newHs,
             prevHighScore: hs,
-            ranking: updatedRanking,
-            newRank: rank,
+            ranking: loadRanking(),
+            newRank: null,
             showRankUpBanner: rankUp,
+            pendingScore: score,
+            nicknameSaved: false,
           }));
           onGameOverExternal?.(score);
         },
@@ -627,7 +620,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       gameRef.current.destroy(true);
       gameRef.current = null;
     }
-    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, prevHighScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null, showRankUpBanner: false });
+    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, prevHighScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null, showRankUpBanner: false, pendingScore: null, nicknameSaved: false });
+    setNickname("");
     // Re-mount triggers useEffect
     setTimeout(() => {
       window.location.reload();
@@ -650,6 +644,31 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
       );
     }
+  };
+
+  const handleNicknameSubmit = () => {
+    if (state.pendingScore === null) return;
+    const name = nickname.trim() || "名無し";
+    const entry: RankingEntry = {
+      name,
+      score: state.pendingScore,
+      date: new Date().toLocaleDateString("ja-JP", {
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      level: jlptMode === "all" ? "全漢字" : jlptMode === "N5" ? "N5" : jlptMode === "N4" ? "N4" : "N3-N1",
+    };
+    const rank = saveToRanking(entry);
+    const updatedRanking = loadRanking();
+    setState((prev) => ({
+      ...prev,
+      ranking: updatedRanking,
+      newRank: rank,
+      pendingScore: null,
+      nicknameSaved: true,
+    }));
   };
 
   const nextKanji = KANJI_LEVELS[state.nextLevel];
@@ -809,7 +828,35 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             })()}
             {/* ─────────────────────────────────────────────────────────── */}
 
-            <p className="text-purple-300 text-xs mb-4">段位を上げて友達に自慢しよう！</p>
+            <p className="text-purple-300 text-xs mb-3">段位を上げて友達に自慢しよう！</p>
+
+            {/* ─── ニックネーム入力 ──────────────────────────────────── */}
+            {!state.nicknameSaved && (
+              <div className="mb-4 rounded-xl p-3 text-left" style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.3)" }}>
+                <p className="text-xs font-bold text-purple-300 mb-2 text-center">📝 ランキングに名前を登録</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleNicknameSubmit(); }}
+                    placeholder="ニックネームを入力"
+                    maxLength={12}
+                    className="flex-1 px-3 py-2 rounded-lg text-sm text-white outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(167,139,250,0.4)" }}
+                  />
+                  <button
+                    onClick={handleNicknameSubmit}
+                    className="px-4 py-2 rounded-lg font-bold text-sm text-[#1a0a2e] active:scale-95 transition-transform"
+                    style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}
+                  >
+                    登録
+                  </button>
+                </div>
+                <p className="text-[10px] text-purple-600 mt-1.5 text-center">空欄のまま登録すると「名無し」になります</p>
+              </div>
+            )}
+            {/* ─────────────────────────────────────────────────────────── */}
 
             {/* もう一回ボタンを最上部・最大サイズで表示 */}
             <button
