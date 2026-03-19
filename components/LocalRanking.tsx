@@ -19,7 +19,7 @@ export function loadRanking(): RankingEntry[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as RankingEntry[];
     // migrate old entries that have no name
-    return parsed.map((e) => ({ name: e.name ?? "名無し", ...e }));
+    return parsed.map((e) => ({ ...e, name: e.name ?? "名無し" }));
   } catch {
     return [];
   }

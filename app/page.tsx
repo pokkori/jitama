@@ -177,12 +177,20 @@ export default function LandingPage() {
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <h2 className="text-sm text-purple-400 mb-4">SNSでスコアをシェア</h2>
         <div className="bg-white/5 border border-purple-800 rounded-2xl p-6">
-          <p className="text-lg font-bold text-yellow-300 mb-2">
-            「字玉で1,234点！」
+          <p className="text-lg font-bold text-yellow-300 mb-1">
+            「字玉で1,234点！段位：漢字使い⚡」
           </p>
+          {/* デイリーチャレンジ絵文字グリッドのサンプル */}
+          <div className="my-3 bg-white/5 border border-purple-700/50 rounded-xl px-4 py-3 text-left">
+            <p className="text-[10px] text-purple-400 mb-1 font-bold">📋 シェアされるテキストのイメージ</p>
+            <p className="text-xs text-purple-200 font-mono whitespace-pre-line leading-relaxed">{`字玉JITAMAで1,234点！段位：⚡漢字使い！
+📅 今日のチャレンジ: 1234/2000pt 🟨🟨🟨⬛⬛
+あなたは何段位まで上がれる？🀄
+→ https://jitama.vercel.app #字玉 #JITAMA`}</p>
+          </div>
           <p className="text-sm text-purple-200 mb-4">
             ゲームオーバー後にワンタップでXに投稿できます。<br />
-            友達と最高スコアを競おう。
+            友達と今日のチャレンジ達成率を競おう。
           </p>
           <div className="flex flex-col gap-2">
             <a

@@ -628,14 +628,34 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     }, 100);
   };
 
+  // ─── デイリーチャレンジ絵文字グリッド生成（Wordle方式）───────────────────
+  const buildDailyChallengeEmoji = (score: number, target: number): string => {
+    const pct = score / target;
+    // 5ブロックで達成率を表現
+    const filled = Math.min(5, Math.round(pct * 5));
+    const blocks = Array.from({ length: 5 }, (_, i) => {
+      if (i < filled) {
+        return filled === 5 ? "🟩" : "🟨"; // クリアなら緑、途中なら黄
+      }
+      return "⬛";
+    }).join("");
+    return blocks;
+  };
+
   const handleShare = () => {
     const isHighScore = state.score >= state.highScore && state.score > 0;
     const currentRank = getRankFromScore(state.score);
     const modeLabel = jlptMode !== "all" ? `[${JLPT_MODES.find(m => m.key === jlptMode)?.label ?? jlptMode}] ` : "";
     const rankLabel = `${currentRank.icon}${currentRank.label}`;
+    const dc = getDailyChallengeStatus();
+    const emojiGrid = buildDailyChallengeEmoji(dc.best, dc.target);
+    const today = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+    const dcLine = dc.cleared
+      ? `📅 ${today}のチャレンジ: クリア！ ${emojiGrid}`
+      : `📅 ${today}のチャレンジ: ${dc.best}/${dc.target}pt ${emojiGrid}`;
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}に到達！漢字合体パズルで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
-      : `字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}！あなたは何段位まで上がれる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
+      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n${dcLine}\n漢字合体パズルで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
+      : `字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}！\n${dcLine}\nあなたは何段位まで上がれる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -866,6 +886,30 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               🀄 もう一回！
             </button>
 
+            {/* ─── デイリーチャレンジ結果カード ─────────────────────────── */}
+            {(() => {
+              const dc = getDailyChallengeStatus();
+              const emojiGrid = buildDailyChallengeEmoji(dc.best, dc.target);
+              const today = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+              return (
+                <div className="mb-3 rounded-xl p-3 text-center" style={{
+                  background: dc.cleared ? "rgba(52,211,153,0.1)" : "rgba(167,139,250,0.08)",
+                  border: dc.cleared ? "1px solid rgba(52,211,153,0.4)" : "1px solid rgba(167,139,250,0.2)",
+                }}>
+                  <div className="text-xs font-bold mb-1" style={{ color: dc.cleared ? "#34d399" : "#a78bfa" }}>
+                    📅 {today}のデイリーチャレンジ {dc.cleared ? "✅ クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
+                  </div>
+                  <div className="text-xl tracking-widest my-1">{emojiGrid}</div>
+                  <div className="text-xs text-purple-400">
+                    {dc.cleared
+                      ? `🎉 ${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`
+                      : `${dc.best.toLocaleString()} / ${dc.target.toLocaleString()}pt — あと少し！`}
+                  </div>
+                </div>
+              );
+            })()}
+            {/* ─────────────────────────────────────────────────────────── */}
+
             <button
               onClick={handleShare}
               className="w-full bg-black hover:bg-gray-900 text-white font-bold py-3 rounded-xl mb-2 flex items-center justify-center gap-2 transition-colors"
@@ -873,7 +917,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
-              段位をXでシェアして自慢する
+              今日の記録をXでシェアする
             </button>
             {/* 広告表示エリア（AdSense申請後に有効化） */}
             <div id="ad-container" className="w-full min-h-[60px] my-2 flex items-center justify-center">
