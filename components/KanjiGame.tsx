@@ -10,6 +10,7 @@ import LocalRanking, {
   saveToRanking,
   resetRanking,
 } from "@/components/LocalRanking";
+import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-utils";
 
 // ─── ストリーク ─────────────────────────────────────────────────────────────
 
@@ -71,9 +72,11 @@ interface GameState {
   nextLevel: number;
   gameOver: boolean;
   highScore: number;
+  prevHighScore: number; // ゲーム前のハイスコア（段位アップ判定用）
   mergeHint: MergeHint | null;
   ranking: RankingEntry[];
   newRank: number | null; // 今回の順位（null = ランク外 or まだゲーム中）
+  showRankUpBanner: boolean; // 段位アップバナー表示フラグ
 }
 
 interface StreakState {
@@ -465,9 +468,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     nextLevel: 0,
     gameOver: false,
     highScore: 0,
+    prevHighScore: 0,
     mergeHint: null,
     ranking: [],
     newRank: null,
+    showRankUpBanner: false,
   });
 
   // 初回チュートリアル表示
@@ -510,7 +515,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           const hs = Number(localStorage.getItem("jitama_hs") ?? "0");
           const newHs = Math.max(hs, score);
           localStorage.setItem("jitama_hs", String(newHs));
-          if (score >= newHs) playHighScore();
+          const isNewHighScore = score >= newHs && score > 0;
+          if (isNewHighScore) playHighScore();
           else playGameOver();
           // デイリーチャレンジ更新
           saveDailyChallengeScore(score);
@@ -531,12 +537,17 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           const updatedRanking = loadRanking();
           // ───────────────────────────────────────────────────────────────
 
+          // 段位アップ判定
+          const rankUp = didRankUp(hs, newHs);
+
           setState((prev) => ({
             ...prev,
             gameOver: true,
             highScore: newHs,
+            prevHighScore: hs,
             ranking: updatedRanking,
             newRank: rank,
+            showRankUpBanner: rankUp,
           }));
           onGameOverExternal?.(score);
         },
@@ -602,7 +613,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       // Load saved high score and ranking
       const hs = Number(localStorage.getItem("jitama_hs") ?? "0");
       const savedRanking = loadRanking();
-      setState((prev) => ({ ...prev, highScore: hs, ranking: savedRanking }));
+      setState((prev) => ({ ...prev, highScore: hs, prevHighScore: hs, ranking: savedRanking }));
     });
 
     return () => {
@@ -616,7 +627,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       gameRef.current.destroy(true);
       gameRef.current = null;
     }
-    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null });
+    setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, prevHighScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null, showRankUpBanner: false });
     // Re-mount triggers useEffect
     setTimeout(() => {
       window.location.reload();
@@ -625,12 +636,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
   const handleShare = () => {
     const isHighScore = state.score >= state.highScore && state.score > 0;
-    // スコアによる上位%推定（体験的バイラル設計）
-    const topPercent = state.score >= 5000 ? "上位5%" : state.score >= 3000 ? "上位15%" : state.score >= 2000 ? "上位30%" : state.score >= 1000 ? "上位50%" : "入門者";
+    const currentRank = getRankFromScore(state.score);
     const modeLabel = jlptMode !== "all" ? `[${JLPT_MODES.find(m => m.key === jlptMode)?.label ?? jlptMode}] ` : "";
+    const rankLabel = `${currentRank.icon}${currentRank.label}`;
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}${topPercent}の漢字力！漢字ゲームで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
-      : `字玉JITAMAで${state.score}点！${modeLabel}${topPercent}！あなたは何点取れる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
+      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}に到達！漢字合体パズルで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
+      : `字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}！あなたは何段位まで上がれる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -754,7 +765,51 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 ランキング {state.newRank}位に登録されました！
               </p>
             )}
-            <p className="text-purple-300 text-xs mb-4">あなたのスコアは何位？友達と競おう！</p>
+
+            {/* ─── 段位表示ブロック ──────────────────────────────────── */}
+            {(() => {
+              const { currentRank, nextRank, required, progress } = getRankProgress(state.score);
+              const isRankUp = state.showRankUpBanner;
+              return (
+                <div className="my-3 rounded-xl p-3 text-left" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(167,139,250,0.2)" }}>
+                  {isRankUp && (
+                    <div className="text-center mb-2 py-1.5 rounded-lg font-black text-sm animate-pulse"
+                      style={{ background: currentRank.gradient, color: currentRank.textColor }}>
+                      🎊 段位アップ！
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{currentRank.icon}</span>
+                    <div>
+                      <div className="text-xs text-purple-400">現在の段位</div>
+                      <div className="text-sm font-black" style={{ color: currentRank.textColor }}>
+                        {currentRank.label}
+                      </div>
+                      <div className="text-[10px] text-purple-600">{currentRank.labelEn}</div>
+                    </div>
+                  </div>
+                  {nextRank ? (
+                    <>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-purple-500">次の段位: {nextRank.icon} {nextRank.label}</span>
+                        <span className="text-[10px] text-purple-400">あと {required.toLocaleString()} pt</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full" style={{ background: "rgba(167,139,250,0.2)" }}>
+                        <div className="h-1.5 rounded-full transition-all duration-700"
+                          style={{ width: `${progress}%`, background: currentRank.gradient }} />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-[10px] text-yellow-300 font-bold text-center mt-1">
+                      👑 最高段位達成！あなたは字玉の頂点に立った！
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+            {/* ─────────────────────────────────────────────────────────── */}
+
+            <p className="text-purple-300 text-xs mb-4">段位を上げて友達に自慢しよう！</p>
 
             {/* もう一回ボタンを最上部・最大サイズで表示 */}
             <button
@@ -771,7 +826,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
-              スコアをXでシェアして自慢する
+              段位をXでシェアして自慢する
             </button>
             {/* 広告表示エリア（AdSense申請後に有効化） */}
             <div id="ad-container" className="w-full min-h-[60px] my-2 flex items-center justify-center">
@@ -781,6 +836,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             {/* ローカルランキング */}
             <LocalRanking
               entries={state.ranking}
+              newRank={state.newRank}
               onReset={() => {
                 resetRanking();
                 setState((prev) => ({ ...prev, ranking: [], newRank: null }));
