@@ -34,11 +34,12 @@ export default function LandingPage() {
         </p>
 
         <Link
-          href="/game"
+          href="/game?mode=N5"
           className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform"
         >
-          今すぐ遊ぶ（無料）
+          まずN5（無料）でプレイ →
         </Link>
+        <p className="text-xs text-purple-400 mt-1">N5は小学レベルの漢字・誰でも遊べます</p>
         <div className="flex justify-center gap-2 flex-wrap mt-3">
           <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">📱 アプリ不要</span>
           <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">🌐 ブラウザで今すぐ</span>
@@ -235,10 +236,10 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <Link
-          href="/game"
+          href="/game?mode=N5"
           className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform"
         >
-          無料でプレイ →
+          N5で無料プレイ →
         </Link>
       </section>
 
