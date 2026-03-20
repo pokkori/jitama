@@ -36,6 +36,41 @@ const MERGE_KNOWLEDGE: Record<number, MergeKnowledge> = {
   11: { before1: "品", before2: "品", after: "字", reading: "じ・あざ", trivia: "「子」が「宀（屋根）」の下で学ぶ＝文字" },
 };
 
+// ─── デイリーランキング（localStorage） ────────────────────────────────────────
+
+interface DailyRankingEntry {
+  score: number;
+  nickname: string;
+  time: string;
+}
+
+function saveDailyRanking(score: number, nickname: string): void {
+  const today = new Date().toISOString().split('T')[0];
+  const key = `kanji_rankings_${today}`;
+  try {
+    const existing: DailyRankingEntry[] = JSON.parse(localStorage.getItem(key) || '[]');
+    existing.push({ score, nickname, time: new Date().toISOString() });
+    existing.sort((a, b) => b.score - a.score);
+    localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
+  } catch { /* noop */ }
+}
+
+function getTopDailyRankings(limit = 10): DailyRankingEntry[] {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const data: DailyRankingEntry[] = JSON.parse(localStorage.getItem(`kanji_rankings_${today}`) || '[]');
+    return data.slice(0, limit);
+  } catch { return []; }
+}
+
+function getDailyRank(score: number): number | null {
+  const rankings = getTopDailyRankings(50);
+  const idx = rankings.findIndex(r => r.score <= score);
+  if (idx === -1 && rankings.length === 0) return 1;
+  if (idx === -1) return rankings.length + 1;
+  return idx + 1;
+}
+
 // ─── ストリーク ─────────────────────────────────────────────────────────────
 
 function getStreakData(): { streak: number; lastDate: string } {
@@ -731,9 +766,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     // 最後に合体した漢字をシェアテキストに含める
     const lastChar = lastMergedCharRef.current;
     const charPart = lastChar ? `漢字「${lastChar}」まで合体！` : "";
+    const dailyRank = getDailyRank(state.score);
+    const rankLine = dailyRank ? `本日ランキング: ${dailyRank}位` : "";
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`
-      : `字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}！\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`;
+      ? `【NEW記録🎉】字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`
+      : `字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -760,6 +797,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     };
     const rank = saveToRanking(entry);
     const updatedRanking = loadRanking();
+    // デイリーランキングにも保存
+    saveDailyRanking(state.pendingScore, name);
     setState((prev) => ({
       ...prev,
       ranking: updatedRanking,
@@ -768,6 +807,24 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       nicknameSaved: true,
     }));
   };
+
+  // ─── 苦手漢字ミニクイズ（ゲームオーバー後） ───────────────────────────────
+  const [weakQuizIdx, setWeakQuizIdx] = useState(0);
+  const [weakQuizAnswer, setWeakQuizAnswer] = useState<string | null>(null);
+  const weakEntries = Object.entries(MERGE_KNOWLEDGE);
+
+  function getWeakQuizItem(idx: number) {
+    const entry = weakEntries[idx % weakEntries.length];
+    const knowledge = entry[1];
+    // 4択: 正解 + ランダム3個
+    const wrongReadings = weakEntries
+      .filter((_, i) => i !== idx % weakEntries.length)
+      .map(e => e[1].reading)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+    const choices = [knowledge.reading, ...wrongReadings].sort(() => Math.random() - 0.5);
+    return { knowledge, choices, level: parseInt(entry[0]) };
+  }
 
   const nextKanji = KANJI_LEVELS[state.nextLevel];
 
@@ -1084,6 +1141,40 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               🀄 もう一回！
             </button>
 
+            {/* ─── デイリーランキング（本日の上位） ──────────────────────── */}
+            {(() => {
+              const dailyRankings = getTopDailyRankings(10);
+              if (dailyRankings.length === 0) return null;
+              const today = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+              return (
+                <div className="mb-3 rounded-xl overflow-hidden" style={{ border: "1px solid rgba(167,139,250,0.3)", background: "rgba(167,139,250,0.06)" }}>
+                  <div className="px-3 py-2 text-xs font-black flex items-center gap-1" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>
+                    🏆 {today} デイリーランキング TOP{Math.min(10, dailyRankings.length)}
+                  </div>
+                  {dailyRankings.map((r, i) => {
+                    const isMe = state.nicknameSaved && r.score === state.score;
+                    return (
+                      <div key={`${r.time}-${i}`} className="flex items-center justify-between px-3 py-1.5 text-xs"
+                        style={{
+                          borderTop: i > 0 ? "1px solid rgba(167,139,250,0.1)" : "none",
+                          background: isMe ? "rgba(244,114,182,0.1)" : "transparent",
+                        }}>
+                        <span className="font-black" style={{
+                          color: i === 0 ? "#fbbf24" : i === 1 ? "#9ca3af" : i === 2 ? "#d97706" : "#a78bfa",
+                        }}>
+                          {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}
+                        </span>
+                        <span className="font-bold truncate max-w-[80px]" style={{ color: isMe ? "#f472b6" : "#e9d5ff" }}>
+                          {isMe ? "★ " : ""}{r.nickname}
+                        </span>
+                        <span className="font-black" style={{ color: "#fbbf24" }}>{r.score.toLocaleString()} pt</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
             {/* ─── デイリーチャレンジ結果カード ─────────────────────────── */}
             {(() => {
               const dc = getDailyChallengeStatus();
@@ -1117,6 +1208,54 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               </svg>
               今日の記録をXでシェアする
             </button>
+            {/* ─── 苦手漢字ミニクイズ ─────────────────────────────────── */}
+            {(() => {
+              const { knowledge, choices, level } = getWeakQuizItem(weakQuizIdx);
+              const kl = KANJI_LEVELS[level];
+              const hexColor = kl ? `#${kl.color.toString(16).padStart(6, "0")}` : "#a78bfa";
+              const isAnswered = weakQuizAnswer !== null;
+              return (
+                <div className="mb-3 rounded-xl p-3 text-center" style={{ background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.25)" }}>
+                  <div className="text-xs font-bold text-purple-400 mb-2">📖 合体知識クイズ — 読みを当てよう！</div>
+                  <div className="text-3xl font-black mb-1" style={{ color: hexColor }}>{knowledge.after}</div>
+                  <div className="text-xs text-purple-500 mb-2">{knowledge.before1} + {knowledge.before2} = ?</div>
+                  <div className="grid grid-cols-2 gap-1.5 mb-2">
+                    {choices.map(choice => {
+                      let bg = "rgba(167,139,250,0.1)";
+                      let border = "rgba(167,139,250,0.3)";
+                      let color = "#e9d5ff";
+                      if (isAnswered) {
+                        if (choice === knowledge.reading) { bg = "rgba(52,211,153,0.2)"; border = "#34d399"; color = "#86efac"; }
+                        else if (choice === weakQuizAnswer) { bg = "rgba(239,68,68,0.2)"; border = "#ef4444"; color = "#fca5a5"; }
+                        else { bg = "rgba(100,100,100,0.1)"; border = "transparent"; color = "rgba(167,139,250,0.3)"; }
+                      }
+                      return (
+                        <button key={choice}
+                          onClick={() => !isAnswered && setWeakQuizAnswer(choice)}
+                          disabled={isAnswered}
+                          className="py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
+                          style={{ background: bg, border: `1px solid ${border}`, color }}>
+                          {choice}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isAnswered && (
+                    <div className="text-xs mb-2" style={{ color: "rgba(167,139,250,0.7)" }}>
+                      {knowledge.trivia}
+                    </div>
+                  )}
+                  {isAnswered && (
+                    <button
+                      onClick={() => { setWeakQuizIdx(i => i + 1); setWeakQuizAnswer(null); }}
+                      className="text-xs px-4 py-1.5 rounded-full font-bold"
+                      style={{ background: "rgba(167,139,250,0.2)", color: "#c084fc", border: "1px solid rgba(167,139,250,0.4)" }}>
+                      次の問題 →
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
             {/* 広告表示エリア（AdSense申請後に有効化） */}
             <div id="ad-container" className="w-full min-h-[60px] my-2 flex items-center justify-center">
               {/* Google AdSense広告がここに表示されます */}
