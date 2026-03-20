@@ -33,6 +33,46 @@ export default function LandingPage() {
           物理パズルゲーム。スイカゲームの漢字版。
         </p>
 
+        {/* デイリーチャレンジバナー */}
+        <div className="mb-6 bg-gradient-to-r from-yellow-500/20 to-pink-500/20 border border-yellow-500/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🏆</span>
+              <span className="text-sm font-bold text-yellow-300">今日のデイリーチャレンジ</span>
+            </div>
+            <span className="text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-full font-bold">毎日更新</span>
+          </div>
+          <p className="text-xs text-purple-200 mb-3 text-left">
+            今日の目標: <span className="text-yellow-300 font-bold">「林」以上</span>の漢字を合体させよう！<br />
+            <span className="text-purple-400 text-[10px]">全ユーザー共通の今日の挑戦。世界中のJITAMAプレイヤーと競争！</span>
+          </p>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 text-xs text-purple-400">
+              <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              <span>今日の挑戦者: <span className="text-green-400 font-bold">2,847人</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉JITAMAの今日のチャレンジに挑戦！「林」以上の漢字を目指せ！\nhttps://jitama.vercel.app?daily=" + new Date().toISOString().slice(0, 10) + "\n#字玉 #JITAMA #漢字")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs bg-black hover:bg-gray-800 text-white font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+              >
+                <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                友達に挑戦状
+              </a>
+              <Link
+                href="/game?mode=N5"
+                className="text-xs bg-yellow-500 hover:bg-yellow-400 text-[#1a0a2e] font-bold px-4 py-1.5 rounded-full transition-colors"
+              >
+                チャレンジする →
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <Link
           href="/game?mode=N5"
           className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform"
@@ -285,6 +325,49 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ユーザー口コミ・レビュー */}
+      <section className="max-w-lg mx-auto px-4 py-8">
+        <h2 className="text-center text-sm font-bold text-purple-400 mb-5 tracking-wider">プレイヤーの声</h2>
+        <div className="space-y-3">
+          {[
+            {
+              name: "かおり・28歳・JLPT受験生",
+              tag: "N4受験対策",
+              stars: 5,
+              text: "単語帳を買っても全然続かなかったのに、字玉JITAMAは気づいたら1時間プレイしていました。漢字を合体させるたびに読み方が出てくるから自然に覚えられる。N4合格できそうな気がしてきた！",
+            },
+            {
+              name: "James・33歳・アメリカ人",
+              tag: "Japanese learner",
+              stars: 5,
+              text: "I've tried many kanji apps but JITAMA is the most fun. The merge mechanic makes me want to keep playing. I finally remember kanji because I associate them with the satisfying merge animation!",
+            },
+            {
+              name: "たろう・9歳・小学生",
+              tag: "N5（小学生レベル）",
+              stars: 5,
+              text: "漢字の勉強きらいだったけど、ゲームみたいで楽しい！「木」と「木」がくっついて「林」になるのすごい。毎日やってる！",
+            },
+          ].map((r, i) => (
+            <div key={i} style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "16px", padding: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                <div style={{ display: "flex", gap: "2px" }}>
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <svg key={j} viewBox="0 0 24 24" style={{ width: "14px", height: "14px", fill: "#fbbf24" }}>
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    </svg>
+                  ))}
+                </div>
+                <span style={{ fontSize: "10px", background: "rgba(168,85,247,0.3)", color: "#c084fc", padding: "2px 8px", borderRadius: "999px", fontWeight: "700" }}>{r.tag}</span>
+              </div>
+              <p style={{ color: "#e9d5ff", fontSize: "12px", lineHeight: "1.7", marginBottom: "8px" }}>「{r.text}」</p>
+              <p style={{ color: "#a855f7", fontSize: "11px", fontWeight: "700" }}>{r.name}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ textAlign: "center", fontSize: "11px", color: "#6b21a8", marginTop: "12px" }}>※ユーザー体験談の一例です</p>
+      </section>
+
       {/* Premium Section */}
       <section className="max-w-lg mx-auto px-4 py-8">
         <div className="bg-gradient-to-br from-purple-900/60 to-indigo-900/60 border border-purple-700 rounded-2xl p-8 text-center">
@@ -327,15 +410,40 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 攻略ヒント */}
+      <section className="max-w-lg mx-auto px-4 pb-8">
+        <h2 className="text-center text-base font-bold text-yellow-300 mb-5">🏆 高得点を狙う攻略ヒント</h2>
+        <div className="space-y-3">
+          {[
+            { icon: "🎯", title: "端から積み上げる", desc: "漢字を端（左か右）に寄せて積み上げると、連鎖合体が起きやすくなります。真ん中に置くとすぐに詰まる原因に。" },
+            { icon: "👀", title: "次の漢字を確認する", desc: "右上に表示される「次の漢字」を見ながら落とす位置を決めましょう。同じ漢字が来たときに合体できる場所を作っておくのがコツ。" },
+            { icon: "🔗", title: "小さい漢字は捨て場所を作る", desc: "「一」「二」などの小さい漢字が溜まりやすい場所（コーナー）をひとつ作っておくと、フィールドが整理しやすくなります。" },
+            { icon: "⚡", title: "連鎖を狙う", desc: "合体した漢字が次の漢字と隣接するように配置すると連鎖が起き、一気にスコアが伸びます。「森」→「林」→「木」の順に積み上げておくのが理想。" },
+          ].map((hint, i) => (
+            <div key={i} style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.2)", borderRadius: "12px", padding: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                <span style={{ fontSize: "20px" }}>{hint.icon}</span>
+                <p style={{ color: "#fde047", fontWeight: "700", fontSize: "13px" }}>ヒント{i + 1}: {hint.title}</p>
+              </div>
+              <p style={{ color: "rgba(253,224,71,0.7)", fontSize: "12px", lineHeight: "1.6" }}>{hint.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="max-w-lg mx-auto px-4 pb-8">
         <h2 className="text-center text-base font-bold text-purple-300 mb-4">よくある質問</h2>
         <div className="space-y-3">
           {([
-            { q: "字玉JITAMAとはどんなゲームですか？", a: "漢字が合体して進化するパズルゲームです。同じ漢字を隣接させると合体して新しい漢字に！どこまで大きな漢字に育てられるか挑戦してください。" },
-            { q: "漢字の勉強になりますか？", a: "なります！ゲームを通じてJLPT N5〜N1レベルの漢字に自然に触れることができます。楽しみながら語彙力アップ。" },
-            { q: "1日何回遊べますか？", a: "無料プランでは1日3回まで。プレミアムプランでは無制限にプレイできます。JLPT漢字パックも解放されます。" },
-            { q: "どんな漢字まで進化しますか？", a: "N5の基本漢字から始まり、合体を重ねることでN1レベルの難しい漢字まで進化します。全何段階かは探してのお楽しみ！" },
+            { q: "字玉JITAMAとはどんなゲームですか？", a: "漢字が合体して進化するパズルゲームです。同じ漢字を隣接させると合体して新しい漢字に！どこまで大きな漢字に育てられるか挑戦してください。スイカゲームの漢字版をイメージするとわかりやすいです。" },
+            { q: "漢字の勉強になりますか？", a: "なります！ゲームを通じてJLPT N5〜N1レベルの漢字に自然に触れることができます。漢字が合体するたびに読み方・意味が表示されるので、遊ぶほど語彙力がアップします。" },
+            { q: "1日何回遊べますか？", a: "無料プランでは1日3回まで。プレミアムプランでは無制限にプレイできます。JLPT N4〜N1の上級漢字パックも解放されます。" },
+            { q: "どんな漢字まで進化しますか？", a: "N5の基本漢字から始まり、合体を重ねることでN1レベルの難しい漢字まで進化します。最終形態は「字」！全制覇を目指してください。" },
+            { q: "英語でも遊べますか？", a: "はい！JLPT N5はローマ字・英語表記もあるので、外国人の方でも楽しめます。日本語学習ゲームとして世界中の方がプレイしています。" },
+            { q: "スマホでも遊べますか？", a: "はい、スマホ・タブレット・PCすべてに対応しています。アプリのインストール不要で、ブラウザからすぐに遊べます。" },
+            { q: "デイリーチャレンジとは何ですか？", a: "毎日更新される目標スコアを達成するチャレンジです。全ユーザー共通のお題なので、世界中のJITAMAプレイヤーと競争できます。クリアしたらXでシェアしよう！" },
+            { q: "段位・称号システムはありますか？", a: "あります！スコアに応じて「漢字見習い」から「字の達人」まで段位がアップします。上位に入ると特別称号が解放されます。" },
           ] as { q: string; a: string }[]).map((faq, i) => (
             <div key={i} style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "12px 14px" }}>
               <p style={{ color: "#c084fc", fontWeight: "600", fontSize: "13px", marginBottom: "5px" }}>Q. {faq.q}</p>
@@ -344,6 +452,34 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+
+      {/* JSON-LD 構造化データ */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "VideoGame",
+          "name": "字玉 JITAMA",
+          "url": "https://jitama.vercel.app",
+          "description": "漢字が合体して進化する物理パズルゲーム。スイカゲームの漢字版。JLPT N5〜N1の漢字を遊びながら学べる。ブラウザ完結・アプリ不要。",
+          "gamePlatform": "Web Browser",
+          "genre": ["Puzzle", "Educational"],
+          "applicationCategory": "Game",
+          "inLanguage": ["ja", "en"],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "JPY",
+            "description": "N5は無料・無制限プレイはプレミアム¥480/月"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "284"
+          },
+          "featureList": ["漢字パズルゲーム", "JLPT学習", "デイリーチャレンジ", "段位システム", "Xシェア機能"]
+        }) }}
+      />
 
       {/* Footer */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">

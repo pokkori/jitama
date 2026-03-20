@@ -23,6 +23,47 @@ const KanjiGame = dynamic(() => import("@/components/KanjiGame"), {
 const FREE_LIMIT = 5;
 const PLAY_COUNT_KEY = "jitama_play_count";
 const PLAY_DATE_KEY = "jitama_play_date";
+const BEST_SCORE_KEY = "jitama_best_score";
+const STREAK_KEY = "jitama_streak";
+const STREAK_DATE_KEY = "jitama_streak_date";
+
+function getBestScore(): number {
+  if (typeof window === "undefined") return 0;
+  return parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? "0", 10);
+}
+
+function updateBestScore(score: number): { isNew: boolean; best: number } {
+  const current = getBestScore();
+  if (score > current) {
+    localStorage.setItem(BEST_SCORE_KEY, String(score));
+    return { isNew: true, best: score };
+  }
+  return { isNew: false, best: current };
+}
+
+function getGameStreak(): number {
+  if (typeof window === "undefined") return 0;
+  const lastDate = localStorage.getItem(STREAK_DATE_KEY);
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const streak = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
+  if (lastDate === today) return streak;
+  if (lastDate === yesterday) return streak;
+  return 0;
+}
+
+function incrementGameStreak(): number {
+  const lastDate = localStorage.getItem(STREAK_DATE_KEY);
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  let streak = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
+  if (lastDate === today) return streak;
+  if (lastDate === yesterday) streak += 1;
+  else streak = 1;
+  localStorage.setItem(STREAK_KEY, String(streak));
+  localStorage.setItem(STREAK_DATE_KEY, today);
+  return streak;
+}
 
 function getTodayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -88,6 +129,9 @@ function GamePageInner() {
   const [playCount, setPlayCount] = useState(0);
   const [showModeSelect, setShowModeSelect] = useState(false);
   const [activeTab, setActiveTab] = useState<GameTab>("merge");
+  const [bestScore, setBestScore] = useState(0);
+  const [gameStreak, setGameStreak] = useState(0);
+  const [newBestScore, setNewBestScore] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -117,10 +161,21 @@ function GamePageInner() {
       });
 
     setPlayCount(getPlayCount());
+    setBestScore(getBestScore());
+    setGameStreak(getGameStreak());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleGameOver = () => {
+  const handleGameOver = (score?: number) => {
+    // ストリーク更新
+    const newStreak = incrementGameStreak();
+    setGameStreak(newStreak);
+    // ベストスコア更新
+    if (score !== undefined) {
+      const result = updateBestScore(score);
+      setBestScore(result.best);
+      if (result.isNew) setNewBestScore(true);
+    }
     if (isPremium) return;
     const newCount = incrementPlayCount();
     setPlayCount(newCount);
@@ -163,22 +218,42 @@ function GamePageInner() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e]">
-      {/* Premium Banner — non-premium users only */}
-      {!isPremium && (
-        <div className="w-full max-w-[400px] bg-gradient-to-r from-purple-900/80 to-indigo-900/80 border-b border-purple-700 px-4 py-2 flex items-center justify-between">
-          <div className="text-xs text-purple-300">
-            {remainingPlays > 0
-              ? `本日あと ${remainingPlays} 回無料プレイ可`
-              : "本日の無料プレイ回数を使い切りました"}
-          </div>
+      {/* Stats Bar */}
+      <div className="w-full max-w-[400px] bg-gradient-to-r from-purple-900/80 to-indigo-900/80 border-b border-purple-700 px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {bestScore > 0 && (
+            <div className="flex items-center gap-1 text-xs text-yellow-300">
+              <span>🏆</span>
+              <span className="font-bold">{bestScore.toLocaleString()}</span>
+              {newBestScore && <span className="text-green-400 text-[10px] font-bold animate-pulse">NEW!</span>}
+            </div>
+          )}
+          {gameStreak >= 1 && (
+            <div className="flex items-center gap-1 text-xs text-orange-300">
+              <span>🔥</span>
+              <span className="font-bold">{gameStreak}日連続！</span>
+            </div>
+          )}
+          {!isPremium && (
+            <div className="text-xs text-purple-300">
+              {remainingPlays > 0
+                ? `残り ${remainingPlays} 回`
+                : "本日終了"}
+            </div>
+          )}
+          {isPremium && (
+            <div className="text-xs text-green-400 font-bold">✓ プレミアム</div>
+          )}
+        </div>
+        {!isPremium && (
           <button
             onClick={() => setShowPayjpModal(true)}
             className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1 rounded-full transition-colors"
           >
-            ⭐ プレミアムで無制限
+            ⭐ 無制限
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Tab Switcher */}
       <div className="w-full max-w-[400px] flex border-b border-purple-800">
@@ -202,6 +277,24 @@ function GamePageInner() {
         >
           🎌 漢字クイズ
         </button>
+      </div>
+
+      {/* 今日の問題シェアバー */}
+      <div className="w-full max-w-[400px] bg-[#1a0a2e]/60 border-b border-purple-800/30 px-4 py-1.5 flex items-center justify-between">
+        <span className="text-[10px] text-purple-500">
+          📅 今日のチャレンジ: {new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}
+        </span>
+        <a
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉JITAMAで今日のチャレンジに挑戦中！漢字を合体させて高スコアを目指せ🀄\nhttps://jitama.vercel.app?daily=" + new Date().toISOString().slice(0, 10) + "\n#字玉 #JITAMA #漢字パズル")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-200 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-current">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          友達に挑戦状を送る
+        </a>
       </div>
 
       {/* JLPT Mode Indicator Bar — Merge mode only */}

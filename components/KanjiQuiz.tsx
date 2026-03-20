@@ -3,6 +3,70 @@
 import { useState, useEffect, useCallback } from "react";
 import { getQuizQuestions, type QuizQuestion } from "@/lib/quiz-data";
 
+// ─── クイズ成績履歴 ──────────────────────────────────────────────────────────
+const QUIZ_HISTORY_KEY = "jitama_quiz_history";
+interface QuizHistoryEntry {
+  level: string;
+  score: number;
+  total: number;
+  pct: number;
+  date: string;
+}
+
+function loadQuizHistory(): QuizHistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(QUIZ_HISTORY_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveQuizHistory(entry: QuizHistoryEntry): QuizHistoryEntry[] {
+  const history = loadQuizHistory();
+  const next = [entry, ...history].slice(0, 20);
+  localStorage.setItem(QUIZ_HISTORY_KEY, JSON.stringify(next));
+  return next;
+}
+
+function QuizHistoryGraph({ history }: { history: QuizHistoryEntry[] }) {
+  if (history.length === 0) return null;
+  const recent = history.slice(0, 8).reverse();
+  const avg = Math.round(recent.reduce((s, h) => s + h.pct, 0) / recent.length);
+  const best = Math.max(...recent.map(h => h.pct));
+  return (
+    <div className="bg-white/5 border border-purple-800/50 rounded-2xl p-4 mb-4">
+      <p className="text-xs text-purple-400 font-bold mb-3">📈 成績の推移（最新{recent.length}回）</p>
+      <div className="flex items-end gap-1.5 h-16 mb-2">
+        {recent.map((h, i) => {
+          const color = h.pct >= 80 ? "#fbbf24" : h.pct >= 60 ? "#a78bfa" : "#6b7280";
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+              <span className="text-[8px] font-bold" style={{ color }}>{h.pct}%</span>
+              <div className="w-full rounded-t transition-all" style={{ height: `${h.pct}%`, backgroundColor: color, minHeight: 3 }} />
+              <span className="text-[7px] text-purple-600 leading-none">{h.date.slice(5)}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-3 justify-center text-center">
+        <div className="flex-1 bg-purple-900/30 rounded-lg p-2">
+          <p className="text-lg font-black text-yellow-300">{avg}%</p>
+          <p className="text-[9px] text-purple-500">平均正解率</p>
+        </div>
+        <div className="flex-1 bg-purple-900/30 rounded-lg p-2">
+          <p className="text-lg font-black text-green-400">{best}%</p>
+          <p className="text-[9px] text-purple-500">ベスト</p>
+        </div>
+        <div className="flex-1 bg-purple-900/30 rounded-lg p-2">
+          <p className="text-lg font-black text-purple-300">{recent.length}</p>
+          <p className="text-[9px] text-purple-500">受験回数</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type QuizLevel = "N5" | "N4" | "N3" | "N2N1";
 
 interface KanjiQuizProps {
@@ -46,6 +110,11 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
     timeLeft: TIME_PER_QUESTION,
     results: [],
   });
+  const [quizHistory, setQuizHistory] = useState<QuizHistoryEntry[]>([]);
+
+  useEffect(() => {
+    setQuizHistory(loadQuizHistory());
+  }, []);
 
   // Timer countdown
   useEffect(() => {
@@ -99,6 +168,18 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
       setTimeout(() => {
         setState((prev) => {
           if (prev.current + 1 >= prev.questions.length) {
+            // 成績を履歴に保存
+            const finalScore = prev.score + (choice === prev.questions[prev.current]?.correct ? 1 : 0);
+            const pct = Math.round((finalScore / QUESTIONS_PER_SESSION) * 100);
+            const entry: QuizHistoryEntry = {
+              level: prev.level,
+              score: finalScore,
+              total: QUESTIONS_PER_SESSION,
+              pct,
+              date: new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+            };
+            const updated = saveQuizHistory(entry);
+            setQuizHistory(updated);
             return { ...prev, phase: "result" };
           }
           return {
@@ -274,6 +355,9 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
         </div>
         <div className="text-purple-300 text-sm mt-1">正解率 {pct}%</div>
       </div>
+
+      {/* 成績履歴グラフ */}
+      <QuizHistoryGraph history={quizHistory} />
 
       {/* Answer review */}
       <div className="bg-white/5 border border-purple-800 rounded-2xl p-4 mb-4 space-y-2 max-h-48 overflow-y-auto">
