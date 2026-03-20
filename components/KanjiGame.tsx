@@ -12,6 +12,30 @@ import LocalRanking, {
 } from "@/components/LocalRanking";
 import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-utils";
 
+// ─── 漢字合体 成り立ちデータ ────────────────────────────────────────────────
+interface MergeKnowledge {
+  before1: string;
+  before2: string;
+  after: string;
+  reading: string;
+  trivia: string;
+}
+
+// level → 合体前の2文字の知識（newLevel = mergedLevel なので、前は newLevel - 1）
+const MERGE_KNOWLEDGE: Record<number, MergeKnowledge> = {
+  1: { before1: "一", before2: "一", after: "二", reading: "に", trivia: "一を二本重ねた形。数の始まり" },
+  2: { before1: "二", before2: "二", after: "三", reading: "さん", trivia: "横線を三本並べた象形文字" },
+  3: { before1: "三", before2: "三", after: "十", reading: "じゅう", trivia: "縦と横の線が交わる十字の形" },
+  4: { before1: "十", before2: "十", after: "木", reading: "き・もく", trivia: "幹と枝と根を持つ木の象形文字" },
+  5: { before1: "木", before2: "木", after: "林", reading: "はやし・りん", trivia: "木が二本で小さな森。林業のりん" },
+  6: { before1: "林", before2: "林", after: "森", reading: "もり・しん", trivia: "木が三本以上集まって大きな森に" },
+  7: { before1: "森", before2: "森", after: "日", reading: "ひ・にち", trivia: "太陽の丸い形を表す象形文字" },
+  8: { before1: "日", before2: "日", after: "明", reading: "あかるい・めい", trivia: "日（太陽）と月が並んで明るい！" },
+  9: { before1: "明", before2: "明", after: "晶", reading: "しょう", trivia: "日が三つで輝く・キラキラ光る" },
+  10: { before1: "晶", before2: "晶", after: "品", reading: "しな・ひん", trivia: "口が三つ並んで品質・品物を表す" },
+  11: { before1: "品", before2: "品", after: "字", reading: "じ・あざ", trivia: "「子」が「宀（屋根）」の下で学ぶ＝文字" },
+};
+
 // ─── ストリーク ─────────────────────────────────────────────────────────────
 
 function getStreakData(): { streak: number; lastDate: string } {
@@ -65,6 +89,19 @@ interface MergeHint {
   meaning: string;
   jlpt: string;
   id: number;
+}
+
+// 合体アニメ演出モーダル
+interface MergeAnimation {
+  id: number;
+  level: number; // mergedLevel
+  knowledge: MergeKnowledge | null;
+}
+
+// コンボ状態
+interface ComboState {
+  count: number;
+  lastMergeAt: number; // timestamp
 }
 
 interface GameState {
@@ -466,6 +503,16 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const [streakState, setStreakState] = useState<StreakState>({ streak: 0, showBanner: false });
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge>({ target: 2000, best: 0, cleared: false });
   const [nickname, setNickname] = useState<string>("");
+  // 合体アニメ演出
+  const [mergeAnimation, setMergeAnimation] = useState<MergeAnimation | null>(null);
+  const mergeAnimIdRef = useRef(0);
+  const mergeAnimTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // コンボカウンター
+  const [comboState, setComboState] = useState<ComboState>({ count: 0, lastMergeAt: 0 });
+  const [showCombo, setShowCombo] = useState(false);
+  const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 最後に合体した漢字（シェアテキスト用）
+  const lastMergedCharRef = useRef<string>("");
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -546,6 +593,34 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         },
         (level) => {
           playMerge(level);
+
+          // 最後に合体した漢字を記録（シェアテキスト用）
+          const mergedKl = KANJI_LEVELS[level];
+          lastMergedCharRef.current = mergedKl.char;
+
+          // ── コンボカウンター ───────────────────────────────────────────
+          const now = Date.now();
+          setComboState((prev) => {
+            const isCombo = now - prev.lastMergeAt < 3000;
+            const newCount = isCombo ? prev.count + 1 : 1;
+            return { count: newCount, lastMergeAt: now };
+          });
+          setShowCombo(true);
+          if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
+          comboTimerRef.current = setTimeout(() => {
+            setShowCombo(false);
+            setComboState((prev) => ({ ...prev, count: 0 }));
+          }, 2000);
+
+          // ── 合体アニメ演出モーダル ─────────────────────────────────────
+          const knowledge = MERGE_KNOWLEDGE[level] ?? null;
+          const animId = ++mergeAnimIdRef.current;
+          setMergeAnimation({ id: animId, level, knowledge });
+          if (mergeAnimTimerRef.current) clearTimeout(mergeAnimTimerRef.current);
+          mergeAnimTimerRef.current = setTimeout(() => {
+            setMergeAnimation((prev) => (prev?.id === animId ? null : prev));
+          }, 1800);
+
           // 「字」（最大レベル）到達チェック
           if (level >= JITAMA_MAX_LEVEL) {
             setJiShown((prev) => {
@@ -653,9 +728,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     const dcLine = dc.cleared
       ? `📅 ${today}のチャレンジ: クリア！ ${emojiGrid}`
       : `📅 ${today}のチャレンジ: ${dc.best}/${dc.target}pt ${emojiGrid}`;
+    // 最後に合体した漢字をシェアテキストに含める
+    const lastChar = lastMergedCharRef.current;
+    const charPart = lastChar ? `漢字「${lastChar}」まで合体！` : "";
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n${dcLine}\n漢字合体パズルで友達と競おう🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`
-      : `字玉JITAMAで${state.score}点！${modeLabel}段位：${rankLabel}！\n${dcLine}\nあなたは何段位まで上がれる？🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`;
+      ? `【NEW記録🎉】字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`
+      : `字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}！\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -701,8 +779,46 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
   const dailyChallengeProgress = Math.min(100, Math.round((dailyChallenge.best / dailyChallenge.target) * 100));
 
+  // コンボカラー
+  const getComboColor = (count: number): string => {
+    if (count >= 4) return "#ef4444"; // 赤
+    if (count >= 3) return "#f97316"; // オレンジ
+    if (count >= 2) return "#eab308"; // 黄色
+    return "#a78bfa"; // 紫（1コンボはほぼ非表示）
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e] select-none">
+
+      {/* CSS: 合体アニメ・コンボ用 */}
+      <style>{`
+        @keyframes merge-pop {
+          0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+          40% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+          70% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1.0); opacity: 0; }
+        }
+        @keyframes bg-flash {
+          0% { opacity: 0; }
+          20% { opacity: 0.45; }
+          100% { opacity: 0; }
+        }
+        @keyframes combo-bounce {
+          0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+          40% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+          70% { transform: translateX(-50%) scale(0.95); opacity: 1; }
+          100% { transform: translateX(-50%) scale(1.0); opacity: 1; }
+        }
+        .merge-pop-modal {
+          animation: merge-pop 1.8s ease-out forwards;
+        }
+        .bg-flash-overlay {
+          animation: bg-flash 0.3s ease-out forwards;
+        }
+        .combo-anim {
+          animation: combo-bounce 0.4s ease-out forwards;
+        }
+      `}</style>
 
       {/* ストリークバナー */}
       {streakState.showBanner && (
@@ -774,6 +890,88 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         className="w-[400px] max-w-full"
         style={{ height: 620, position: "relative" }}
       />
+
+      {/* ── コンボカウンター ─────────────────────────────────────────────── */}
+      {showCombo && comboState.count >= 2 && !state.gameOver && (
+        <div
+          key={`combo-${comboState.lastMergeAt}`}
+          className="combo-anim fixed z-30 pointer-events-none"
+          style={{ top: "22%", left: "50%" }}
+        >
+          <div
+            className="px-5 py-2 rounded-2xl font-black text-white text-xl shadow-2xl"
+            style={{
+              background: `linear-gradient(135deg, ${getComboColor(comboState.count)}, ${getComboColor(comboState.count)}88)`,
+              boxShadow: `0 0 24px ${getComboColor(comboState.count)}88`,
+              border: `2px solid ${getComboColor(comboState.count)}`,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {comboState.count >= 4 ? "🔥" : comboState.count >= 3 ? "✨" : "⚡"}
+            {" "}{comboState.count} COMBO!
+          </div>
+        </div>
+      )}
+
+      {/* ── 合体アニメ演出モーダル ───────────────────────────────────────── */}
+      {mergeAnimation && !state.gameOver && (() => {
+        const kl = KANJI_LEVELS[mergeAnimation.level];
+        const kn = mergeAnimation.knowledge;
+        const hexColor = `#${kl.color.toString(16).padStart(6, "0")}`;
+        return (
+          <div
+            key={`merge-anim-${mergeAnimation.id}`}
+            className="fixed inset-0 z-[25] pointer-events-none"
+          >
+            {/* 背景フラッシュ */}
+            <div
+              className="bg-flash-overlay absolute inset-0"
+              style={{ background: `radial-gradient(circle, ${hexColor}44 0%, transparent 70%)` }}
+            />
+            {/* メインポップアップ */}
+            <div
+              className="merge-pop-modal absolute"
+              style={{ top: "42%", left: "50%" }}
+            >
+              <div
+                className="rounded-2xl px-6 py-4 text-center shadow-2xl"
+                style={{
+                  background: "rgba(26,10,46,0.96)",
+                  border: `2px solid ${hexColor}`,
+                  boxShadow: `0 0 40px ${hexColor}66`,
+                  minWidth: "220px",
+                }}
+              >
+                {/* 合体前後表示 */}
+                {kn && (
+                  <div className="text-sm text-purple-300 mb-1 font-bold">
+                    {kn.before1} + {kn.before2} =
+                  </div>
+                )}
+                {/* 合体した漢字（大） */}
+                <div
+                  className="text-6xl font-black mb-1"
+                  style={{ color: hexColor, textShadow: `0 0 20px ${hexColor}` }}
+                >
+                  {kl.char}
+                </div>
+                {/* 「合体！」テキスト */}
+                <div className="text-yellow-300 font-black text-lg mb-1">合体！</div>
+                {/* 漢字名・読み */}
+                <div className="text-white font-bold text-sm">
+                  「{kl.char}」{kn ? `（${kn.reading}）` : `（${kl.reading}）`}
+                </div>
+                {/* 豆知識 */}
+                {kn && (
+                  <div className="text-purple-300 text-xs mt-1.5 leading-snug">
+                    {kn.trivia}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* JLPT Study Hint — appears on merge in JLPT modes */}
       {state.mergeHint && !state.gameOver && (
