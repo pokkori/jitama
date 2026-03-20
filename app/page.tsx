@@ -3,6 +3,7 @@ import Image from "next/image";
 import { KANJI_LEVELS } from "@/lib/kanji-data";
 import { JLPT_MODES } from "@/lib/jlpt";
 import PremiumButton from "@/components/PremiumButton";
+import WeeklyRankingSection from "@/components/WeeklyRankingSection";
 
 const LEVELS_PREVIEW = KANJI_LEVELS.slice(0, 6);
 
@@ -212,6 +213,9 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+
+      {/* 週間ランキング・学習レポート */}
+      <WeeklyRankingSection />
 
       {/* SNS / Social proof */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
