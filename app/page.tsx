@@ -87,6 +87,24 @@ export default function LandingPage() {
           <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">✨ 無料で遊べる</span>
         </div>
 
+        {/* デイリーチャレンジ専用ページへのリンク */}
+        <div className="mt-4 flex justify-center gap-2">
+          <Link
+            href="/daily"
+            className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold transition-all hover:scale-105"
+            style={{ background: "rgba(234,179,8,0.15)", color: "#fde047", border: "1px solid rgba(234,179,8,0.4)" }}
+          >
+            📅 デイリーチャレンジ
+          </Link>
+          <Link
+            href="/game?mode=N5"
+            className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold transition-all hover:scale-105"
+            style={{ background: "rgba(168,85,247,0.15)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.4)" }}
+          >
+            🀄 フリーモード
+          </Link>
+        </div>
+
         {/* Hero banner */}
         <div className="mt-8 rounded-2xl overflow-hidden shadow-lg shadow-purple-900/50">
           <Image
