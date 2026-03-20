@@ -27,6 +27,62 @@ const BEST_SCORE_KEY = "jitama_best_score";
 const STREAK_KEY = "jitama_streak";
 const STREAK_DATE_KEY = "jitama_streak_date";
 
+// 難易度設定
+export type DifficultyLevel = "easy" | "normal" | "hard";
+const DIFFICULTY_KEY = "jitama_difficulty";
+const DIFFICULTY_LABELS: Record<DifficultyLevel, { label: string; desc: string; emoji: string; speedFactor: number }> = {
+  easy:   { label: "かんたん", desc: "落下スピード遅め・N5基本漢字多め", emoji: "🌱", speedFactor: 0.7 },
+  normal: { label: "ふつう",   desc: "バランス良い標準設定", emoji: "⭐", speedFactor: 1.0 },
+  hard:   { label: "むずかしい", desc: "落下スピード速め・難しい漢字多め", emoji: "🔥", speedFactor: 1.4 },
+};
+
+function getSavedDifficulty(): DifficultyLevel {
+  if (typeof window === "undefined") return "normal";
+  const v = localStorage.getItem(DIFFICULTY_KEY);
+  if (v === "easy" || v === "normal" || v === "hard") return v;
+  return "normal";
+}
+
+// 学習統計
+const STATS_KEY = "jitama_stats";
+interface LearningStats {
+  totalGames: number;
+  weekGames: number;
+  weekStartDate: string;
+  correctAnswers: number;
+  totalAnswers: number;
+}
+
+function loadLearningStats(): LearningStats {
+  if (typeof window === "undefined") return { totalGames: 0, weekGames: 0, weekStartDate: getMonday(), correctAnswers: 0, totalAnswers: 0 };
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    if (!raw) return { totalGames: 0, weekGames: 0, weekStartDate: getMonday(), correctAnswers: 0, totalAnswers: 0 };
+    const parsed = JSON.parse(raw) as LearningStats;
+    // 週リセット
+    if (parsed.weekStartDate !== getMonday()) {
+      parsed.weekGames = 0;
+      parsed.weekStartDate = getMonday();
+    }
+    return parsed;
+  } catch { return { totalGames: 0, weekGames: 0, weekStartDate: getMonday(), correctAnswers: 0, totalAnswers: 0 }; }
+}
+
+function getMonday(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff)).toISOString().slice(0, 10);
+}
+
+function incrementGameStats(): LearningStats {
+  const stats = loadLearningStats();
+  stats.totalGames += 1;
+  stats.weekGames += 1;
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  return stats;
+}
+
 function getBestScore(): number {
   if (typeof window === "undefined") return 0;
   return parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? "0", 10);
@@ -128,6 +184,10 @@ function GamePageInner() {
   const [showJlptPaywall, setShowJlptPaywall] = useState(false);
   const [playCount, setPlayCount] = useState(0);
   const [showModeSelect, setShowModeSelect] = useState(false);
+  const [showDifficultySelect, setShowDifficultySelect] = useState(false);
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>("normal");
+  const [showStatsPanel, setShowStatsPanel] = useState(false);
+  const [learningStats, setLearningStats] = useState<LearningStats>({ totalGames: 0, weekGames: 0, weekStartDate: "", correctAnswers: 0, totalAnswers: 0 });
   const [activeTab, setActiveTab] = useState<GameTab>("merge");
   const [bestScore, setBestScore] = useState(0);
   const [gameStreak, setGameStreak] = useState(0);
@@ -163,13 +223,24 @@ function GamePageInner() {
     setPlayCount(getPlayCount());
     setBestScore(getBestScore());
     setGameStreak(getGameStreak());
+    setDifficulty(getSavedDifficulty());
+    setLearningStats(loadLearningStats());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleDifficultyChange = (d: DifficultyLevel) => {
+    setDifficulty(d);
+    localStorage.setItem(DIFFICULTY_KEY, d);
+    setShowDifficultySelect(false);
+  };
 
   const handleGameOver = (score?: number) => {
     // ストリーク更新
     const newStreak = incrementGameStreak();
     setGameStreak(newStreak);
+    // 学習統計更新
+    const stats = incrementGameStats();
+    setLearningStats(stats);
     // ベストスコア更新
     if (score !== undefined) {
       const result = updateBestScore(score);
@@ -245,14 +316,32 @@ function GamePageInner() {
             <div className="text-xs text-green-400 font-bold">✓ プレミアム</div>
           )}
         </div>
-        {!isPremium && (
+        <div className="flex items-center gap-2">
+          {/* 難易度ボタン */}
           <button
-            onClick={() => setShowPayjpModal(true)}
-            className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1 rounded-full transition-colors"
+            onClick={() => setShowDifficultySelect(true)}
+            className="text-xs bg-indigo-700/70 hover:bg-indigo-600 text-white font-bold px-2.5 py-1 rounded-full transition-colors"
+            title="難易度設定"
           >
-            ⭐ 無制限
+            {DIFFICULTY_LABELS[difficulty].emoji} {DIFFICULTY_LABELS[difficulty].label}
           </button>
-        )}
+          {/* 学習統計ボタン */}
+          <button
+            onClick={() => setShowStatsPanel(true)}
+            className="text-xs bg-purple-700/60 hover:bg-purple-600 text-white font-bold px-2.5 py-1 rounded-full transition-colors"
+            title="学習統計"
+          >
+            📊
+          </button>
+          {!isPremium && (
+            <button
+              onClick={() => setShowPayjpModal(true)}
+              className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1 rounded-full transition-colors"
+            >
+              ⭐ 無制限
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab Switcher */}
@@ -429,6 +518,97 @@ function GamePageInner() {
               className="text-xs text-purple-500 hover:text-purple-400 underline"
             >
               明日また無料でプレイする
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 難易度選択ダイアログ */}
+      {showDifficultySelect && (
+        <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-6 max-w-sm w-full">
+            <div className="text-center mb-5">
+              <div className="text-2xl mb-1">⚙️</div>
+              <h2 className="text-lg font-bold text-white">難易度を選ぼう</h2>
+              <p className="text-xs text-purple-400 mt-1">設定は次のゲームから反映されます</p>
+            </div>
+            <div className="space-y-3">
+              {(Object.keys(DIFFICULTY_LABELS) as DifficultyLevel[]).map((key) => {
+                const d = DIFFICULTY_LABELS[key];
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleDifficultyChange(key)}
+                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${
+                      difficulty === key
+                        ? "border-purple-400 bg-purple-700/40"
+                        : "border-purple-800 bg-white/5 hover:bg-white/10 hover:border-purple-600"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{d.emoji}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-white">{d.label}</span>
+                          {difficulty === key && (
+                            <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">選択中</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-purple-300 mt-0.5">{d.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => setShowDifficultySelect(false)}
+              className="w-full mt-4 text-xs text-purple-500 hover:text-purple-400 underline"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 学習統計パネル */}
+      {showStatsPanel && (
+        <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-6 max-w-sm w-full">
+            <div className="text-center mb-5">
+              <div className="text-2xl mb-1">📊</div>
+              <h2 className="text-lg font-bold text-white">学習統計ダッシュボード</h2>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="bg-purple-900/40 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-yellow-300">{learningStats.weekGames}</p>
+                <p className="text-[10px] text-purple-500 mt-0.5">今週のプレイ</p>
+              </div>
+              <div className="bg-purple-900/40 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-green-400">{learningStats.totalGames}</p>
+                <p className="text-[10px] text-purple-500 mt-0.5">累計プレイ</p>
+              </div>
+              <div className="bg-purple-900/40 rounded-xl p-3 text-center">
+                <p className="text-xl font-black text-orange-300">{gameStreak}</p>
+                <p className="text-[10px] text-purple-500 mt-0.5">連続プレイ日</p>
+              </div>
+            </div>
+            <div className="bg-purple-900/30 border border-purple-800/50 rounded-xl p-3 mb-4">
+              <p className="text-xs text-purple-400 font-bold mb-2">🏆 ベストスコア</p>
+              <p className="text-2xl font-black text-yellow-300">{bestScore > 0 ? bestScore.toLocaleString() : "まだ記録なし"}</p>
+            </div>
+            <div className="bg-indigo-900/30 border border-indigo-800/50 rounded-xl p-3 mb-4">
+              <p className="text-xs text-indigo-400 font-bold mb-1">現在の難易度</p>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{DIFFICULTY_LABELS[difficulty].emoji}</span>
+                <span className="text-sm font-bold text-white">{DIFFICULTY_LABELS[difficulty].label}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowStatsPanel(false)}
+              className="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+            >
+              閉じる
             </button>
           </div>
         </div>
