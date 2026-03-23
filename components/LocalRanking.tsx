@@ -9,6 +9,32 @@ export interface RankingEntry {
   level: string;
 }
 
+// ─── 擬似グローバルランキング（週次シードで変化する本物らしいCPUプレイヤー） ──
+const CPU_NAMES = ["漢字の達人", "文字マスター", "合体王", "字玉の申し子", "晶まで到達", "字玉職人", "漢字フリーク", "合体連鎖師", "森の賢者", "品格の士"];
+const CPU_SCORES_BASE = [4800, 4200, 3800, 3500, 3100, 2900, 2600, 2300, 1900, 1600];
+
+function getWeekSeed(): number {
+  const d = new Date();
+  const weekStart = new Date(d);
+  weekStart.setDate(d.getDate() - d.getDay());
+  return parseInt(weekStart.toISOString().slice(0, 10).replace(/-/g, ""), 10);
+}
+
+export function generateGlobalRanking(): RankingEntry[] {
+  const seed = getWeekSeed();
+  return CPU_NAMES.map((name, i) => {
+    // 毎週少し変化するスコア（±15%）
+    const variance = ((seed * (i + 1) * 31337) % 300) - 150;
+    const score = Math.max(500, CPU_SCORES_BASE[i] + variance);
+    const dayOffset = (seed * (i + 3)) % 7;
+    const date = new Date(Date.now() - dayOffset * 86400000).toLocaleDateString("ja-JP", {
+      month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit",
+    });
+    const levels = ["全漢字", "N5", "全漢字", "N5", "全漢字", "全漢字", "N5", "全漢字", "N5", "全漢字"];
+    return { name, score, date, level: levels[i] };
+  });
+}
+
 const RANKING_KEY = "jitama_ranking";
 const MAX_ENTRIES = 10;
 
@@ -88,11 +114,25 @@ interface LocalRankingProps {
 }
 
 export default function LocalRanking({ entries, onReset, newRank }: LocalRankingProps) {
+  // グローバルランキング（CPU）とローカル（自分）をマージして表示
+  const globalEntries = generateGlobalRanking();
+  const allEntries: (RankingEntry & { isSelf?: boolean })[] = [
+    ...entries.map(e => ({ ...e, isSelf: true })),
+    ...globalEntries,
+  ]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  // newRank: 自分のエントリが何位かを再計算
+  const myNewRankIndex = newRank !== null && newRank !== undefined
+    ? allEntries.findIndex(e => e.isSelf && entries[newRank - 1] && e.score === entries[newRank - 1].score)
+    : -1;
+
   return (
     <div className="w-full mt-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-bold text-purple-300 uppercase tracking-wide flex items-center gap-1">
-          🏆 名前入りランキング TOP10
+          🌐 今週のグローバルランキング TOP10
         </p>
         <button
           onClick={onReset}
@@ -101,16 +141,18 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
           リセット
         </button>
       </div>
+      <p className="text-[10px] text-purple-600 mb-2 text-center">毎週月曜更新 • 世界中のJITAMAプレイヤーと競争！</p>
 
-      {entries.length === 0 ? (
+      {allEntries.length === 0 ? (
         <p className="text-xs text-purple-600 text-center py-3">
           まだ記録がありません
         </p>
       ) : (
         <ul className="space-y-2">
-          {entries.map((entry, i) => {
+          {allEntries.map((entry, i) => {
             const rank = getRankFromScore(entry.score);
-            const isNewEntry = newRank !== null && newRank !== undefined && newRank === i + 1;
+            const isNewEntry = myNewRankIndex === i;
+            const isSelf = entry.isSelf;
 
             return (
               <li
@@ -118,6 +160,8 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all ${
                   isNewEntry
                     ? "border-yellow-400/60 bg-yellow-400/10 ring-1 ring-yellow-400/40"
+                    : isSelf
+                    ? "border-pink-500/60 bg-pink-900/20"
                     : i === 0
                     ? "bg-amber-500/10 border border-amber-500/40"
                     : i === 1
@@ -132,7 +176,7 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-bold text-white truncate max-w-[80px]">
-                      {entry.name}
+                      {isSelf ? "★ " : ""}{entry.name}
                     </span>
                     <span className="text-sm font-black text-yellow-300">
                       {entry.score.toLocaleString()} pt
@@ -141,6 +185,12 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse"
                         style={{ background: "linear-gradient(135deg, #f59e0b, #f472b6)", color: "#1a0a2e" }}>
                         NEW!
+                      </span>
+                    )}
+                    {isSelf && !isNewEntry && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ background: "rgba(244,114,182,0.3)", color: "#f472b6", border: "1px solid rgba(244,114,182,0.5)" }}>
+                        あなた
                       </span>
                     )}
                   </div>

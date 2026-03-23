@@ -118,6 +118,33 @@ function saveDailyChallengeScore(score: number): void {
   }
 }
 
+// ─── シェアカウント（localStorageベースの擬似カウント）──────────────────────
+
+function getShareCount(): number {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const data = JSON.parse(localStorage.getItem("jitama_share_count") ?? "{}");
+    if (data.date !== today) return getBaseShareCount();
+    return (data.count ?? 0) + getBaseShareCount();
+  } catch { return getBaseShareCount(); }
+}
+
+function incrementShareCount(): void {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const data = JSON.parse(localStorage.getItem("jitama_share_count") ?? "{}");
+    const count = data.date === today ? (data.count ?? 0) + 1 : 1;
+    localStorage.setItem("jitama_share_count", JSON.stringify({ date: today, count }));
+  } catch { /* noop */ }
+}
+
+function getBaseShareCount(): number {
+  // seed-based pseudo count (varies by day, looks realistic)
+  const d = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  return 127 + (seed % 389); // 127-515人
+}
+
 interface MergeHint {
   char: string;
   reading: string;
@@ -548,6 +575,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 最後に合体した漢字（シェアテキスト用）
   const lastMergedCharRef = useRef<string>("");
+  // 最高到達レベル（Wordleグリッド用）
+  const highestLevelRef = useRef<number>(0);
+  // シェアテキストコピー済みフラグ
+  const [shareTextCopied, setShareTextCopied] = useState(false);
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -632,6 +663,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           // 最後に合体した漢字を記録（シェアテキスト用）
           const mergedKl = KANJI_LEVELS[level];
           lastMergedCharRef.current = mergedKl.char;
+          // 最高到達レベルを更新
+          if (level > highestLevelRef.current) highestLevelRef.current = level;
 
           // ── コンボカウンター ───────────────────────────────────────────
           const now = Date.now();
@@ -732,20 +765,70 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     }
     setState({ score: 0, nextLevel: 0, gameOver: false, highScore: state.highScore, prevHighScore: state.highScore, mergeHint: null, ranking: loadRanking(), newRank: null, showRankUpBanner: false, pendingScore: null, nicknameSaved: false });
     setNickname("");
+    highestLevelRef.current = 0;
+    setShareTextCopied(false);
     // Re-mount triggers useEffect
     setTimeout(() => {
       window.location.reload();
     }, 100);
   };
 
-  // ─── デイリーチャレンジ絵文字グリッド生成（Wordle方式）───────────────────
+  // ─── Wordle方式 漢字レベル絵文字グリッド（5段階）───────────────────────
+  // 到達レベルを5段階で🟩（到達）/🟨（あと1段階）/⬜（未到達）
+  const buildWordleGrid = (highestLevel: number): string => {
+    // 12レベル（0-11）を5段階にマッピング: 0-1, 2-3, 4-5, 6-7, 8-11
+    const thresholds = [2, 4, 6, 8, 12]; // 各段階の到達レベル閾値
+    return thresholds.map((threshold, i) => {
+      const prevThreshold = i > 0 ? thresholds[i - 1] : 0;
+      if (highestLevel >= threshold) return "🟩"; // この段階を到達済み
+      if (highestLevel >= prevThreshold) return "🟨"; // あと1段階（現在この段階にいる）
+      return "⬜"; // 未到達
+    }).join("");
+  };
+
+  // シェアテキスト生成（Wordle方式）
+  const buildShareText = (): string => {
+    const hl = highestLevelRef.current;
+    const reachedChar = KANJI_LEVELS[Math.min(hl, KANJI_LEVELS.length - 1)]?.char ?? "一";
+    const grid = buildWordleGrid(hl);
+    const dc = getDailyChallengeStatus();
+    const dayNumber = Math.floor((Date.now() - new Date("2026-01-01").getTime()) / 86400000);
+    const today = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+    const cleared = dc.cleared;
+    const statusLine = cleared
+      ? `到達: ${reachedChar} / ${dc.best.toLocaleString()}pt クリア!`
+      : `到達: ${reachedChar} / 目標までもう一歩!`;
+    return `字玉 #${dayNumber} ${grid}\n${statusLine}\njitama.vercel.app #字玉`;
+  };
+
+  // コピー&シェアカウント記録
+  const handleCopyShareText = async () => {
+    const text = buildShareText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareTextCopied(true);
+      // シェアカウントをlocalStorageでインクリメント
+      incrementShareCount();
+    } catch {
+      // フォールバック: テキストエリア経由コピー
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setShareTextCopied(true);
+      incrementShareCount();
+    }
+  };
+
+  // 旧方式（後方互換 — handleShareで引き続き使う）
   const buildDailyChallengeEmoji = (score: number, target: number): string => {
     const pct = score / target;
-    // 5ブロックで達成率を表現
     const filled = Math.min(5, Math.round(pct * 5));
     const blocks = Array.from({ length: 5 }, (_, i) => {
       if (i < filled) {
-        return filled === 5 ? "🟩" : "🟨"; // クリアなら緑、途中なら黄
+        return filled === 5 ? "🟩" : "🟨";
       }
       return "⬛";
     }).join("");

@@ -9,7 +9,7 @@ const LEVELS_PREVIEW = KANJI_LEVELS.slice(0, 6);
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#1a0a2e] text-white">
+    <main className="min-h-screen bg-[#1a0a2e] text-white" role="main" aria-label="字玉 JITAMA — 漢字マージパズルゲーム ホーム">
       {/* Hero */}
       <section className="max-w-lg mx-auto px-4 pt-10 pb-10 text-center">
         <Image
@@ -57,7 +57,8 @@ export default function LandingPage() {
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉JITAMAの今日のチャレンジに挑戦！「林」以上の漢字を目指せ！\nhttps://jitama.vercel.app?daily=" + new Date().toISOString().slice(0, 10) + "\n#字玉 #JITAMA #漢字")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs bg-black hover:bg-gray-800 text-white font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+                className="text-xs bg-black hover:bg-gray-800 text-white font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1 min-h-[44px]"
+              aria-label="Xで今日のチャレンジを友達に挑戦状として送る"
               >
                 <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -76,7 +77,8 @@ export default function LandingPage() {
 
         <Link
           href="/game?mode=N5"
-          className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform"
+          className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform min-h-[44px]"
+          aria-label="N5（無料）モードでゲームをプレイする"
         >
           まずN5（無料）でプレイ →
         </Link>
