@@ -1135,7 +1135,13 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
             <p className="text-yellow-300 text-3xl font-black mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (
-              <p className="text-pink-400 text-sm font-bold mb-1 animate-pulse">🎉 NEW HIGH SCORE!</p>
+              <p className="text-pink-400 text-sm font-bold mb-1 animate-pulse">NEW HIGH SCORE!</p>
+            )}
+            {/* ニアミス演出: 自己ベストの90%以上の場合 */}
+            {state.score < state.highScore && state.prevHighScore > 0 && (state.highScore - state.score) <= state.highScore * 0.12 && (
+              <p className="text-amber-400 text-xs font-bold mb-1 animate-pulse">
+                惜しい！あと {(state.highScore - state.score).toLocaleString()} ptで自己ベスト更新！
+              </p>
             )}
             {state.newRank !== null && (
               <p className="text-emerald-400 text-xs font-bold mb-1">
