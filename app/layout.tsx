@@ -9,6 +9,11 @@ const DESC = "漢字の部首を落として合体させる物理パズルゲー
 export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
+  keywords: ["漢字マージ", "字玉", "JITAMA", "漢字ゲーム", "スイカゲーム 漢字", "JLPT 漢字学習", "漢字パズル", "無料ゲーム", "kanji game", "Japanese learning game"],
+  alternates: {
+    canonical: SITE_URL,
+    languages: { "en": `${SITE_URL}/en` },
+  },
   icons: { icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F004;</text></svg>" },
   openGraph: {
     title: TITLE,

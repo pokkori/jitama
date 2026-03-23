@@ -35,7 +35,7 @@ export default function LandingPage() {
         </p>
 
         {/* デイリーチャレンジバナー */}
-        <div className="mb-6 bg-gradient-to-r from-yellow-500/20 to-pink-500/20 border border-yellow-500/50 rounded-2xl p-4">
+        <div className="mb-6 bg-white/10 backdrop-blur-sm bg-gradient-to-r from-yellow-500/20 to-pink-500/20 border border-white/20 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-xl">🏆</span>
@@ -67,7 +67,8 @@ export default function LandingPage() {
               </a>
               <Link
                 href="/game?mode=N5"
-                className="text-xs bg-yellow-500 hover:bg-yellow-400 text-[#1a0a2e] font-bold px-4 py-1.5 rounded-full transition-colors"
+                className="text-xs bg-yellow-500 hover:bg-yellow-400 text-[#1a0a2e] font-bold px-4 py-1.5 rounded-full transition-colors min-h-[44px] flex items-center"
+                aria-label="今日のデイリーチャレンジをN5モードで開始する"
               >
                 チャレンジする →
               </Link>
@@ -95,6 +96,7 @@ export default function LandingPage() {
             href="/daily"
             className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold transition-all hover:scale-105"
             style={{ background: "rgba(234,179,8,0.15)", color: "#fde047", border: "1px solid rgba(234,179,8,0.4)" }}
+            aria-label="今日のデイリーチャレンジページを開く"
           >
             📅 デイリーチャレンジ
           </Link>
@@ -102,6 +104,7 @@ export default function LandingPage() {
             href="/game?mode=N5"
             className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold transition-all hover:scale-105"
             style={{ background: "rgba(168,85,247,0.15)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.4)" }}
+            aria-label="N5フリーモードでゲームを開始する"
           >
             🀄 フリーモード
           </Link>
@@ -161,7 +164,7 @@ export default function LandingPage() {
             { icon: "✨", title: "同じ字が合体", desc: "同じ漢字が触れると合体して進化する" },
             { icon: "🏆", title: "高得点を狙え", desc: "大きい漢字ほどハイスコア。「字」を出せ！" },
           ].map((s) => (
-            <div key={s.title} className="bg-white/5 rounded-xl p-4 text-center border border-purple-800">
+            <div key={s.title} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20 shadow-lg">
               <div className="text-3xl mb-2">{s.icon}</div>
               <p className="font-bold text-sm mb-1">{s.title}</p>
               <p className="text-xs text-purple-300">{s.desc}</p>
@@ -195,6 +198,7 @@ export default function LandingPage() {
                 <Link
                   key={mode.key}
                   href={`/game?mode=${mode.key}`}
+                  aria-label={`${mode.label}（${mode.key}）モードでゲームを開始する${isPremiumMode ? " ※プレミアム" : ""}`}
                   className={`relative border rounded-xl px-4 py-3 text-center transition-all hover:scale-[1.02] block ${
                     isPremiumMode
                       ? "bg-amber-900/20 hover:bg-amber-900/30 border-amber-700/60 hover:border-amber-500"
@@ -240,7 +244,7 @@ export default function LandingPage() {
       {/* SNS / Social proof */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <h2 className="text-sm text-purple-400 mb-4">SNSでスコアをシェア</h2>
-        <div className="bg-white/5 border border-purple-800 rounded-2xl p-6">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
           <p className="text-lg font-bold text-yellow-300 mb-1">
             「字玉で1,234点！段位：漢字使い⚡」
           </p>
@@ -261,10 +265,11 @@ export default function LandingPage() {
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル🀄 どこまで合体できる？ → https://jitama.vercel.app #字玉 #漢字 #パズルゲーム #JLPT")}`}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="字玉JITAMAをXでシェアする"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
               style={{ background: "#000" }}
             >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
               Xで字玉を紹介する
@@ -273,10 +278,11 @@ export default function LandingPage() {
               href={`https://line.me/R/msg/text/?${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル🀄 どこまで合体できる？ https://jitama.vercel.app")}`}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="字玉JITAMAをLINEで友達に送る"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
               style={{ background: "#06C755" }}
             >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
                 <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
               </svg>
               LINEで友達に送る
@@ -310,6 +316,7 @@ export default function LandingPage() {
         <Link
           href="/game?mode=N5"
           className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-900/50 hover:scale-105 transition-transform"
+          aria-label="N5（無料）モードでゲームをプレイする"
         >
           N5で無料プレイ →
         </Link>
@@ -509,11 +516,11 @@ export default function LandingPage() {
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <p className="text-xs text-purple-500">
           © 2026 字玉 JITAMA |{" "}
-          <Link href="/legal" className="underline hover:text-purple-300">特商法</Link>
+          <Link href="/legal" className="underline hover:text-purple-300" aria-label="特定商取引法に基づく表記を確認する">特商法</Link>
           {" "}·{" "}
-          <Link href="/privacy" className="underline hover:text-purple-300">プライバシー</Link>
+          <Link href="/privacy" className="underline hover:text-purple-300" aria-label="プライバシーポリシーを確認する">プライバシー</Link>
           {" "}·{" "}
-          <Link href="/terms" className="underline hover:text-purple-300">利用規約</Link>
+          <Link href="/terms" className="underline hover:text-purple-300" aria-label="利用規約を確認する">利用規約</Link>
         </p>
       </section>
     </main>
