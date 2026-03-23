@@ -549,6 +549,59 @@ function createGameScene(
 
 const JITAMA_MAX_LEVEL = 11; // 「字」が最大レベル
 
+// ─── JLPT進捗バー ─────────────────────────────────────────────────────────────
+
+const JLPT_LEVELS = [
+  { level: "N5", threshold: 0, color: "bg-green-400" },
+  { level: "N4", threshold: 500, color: "bg-blue-400" },
+  { level: "N3", threshold: 1500, color: "bg-yellow-400" },
+  { level: "N2", threshold: 3000, color: "bg-orange-400" },
+  { level: "N1", threshold: 6000, color: "bg-red-500" },
+];
+
+function getJlptLevel(score: number) {
+  let current = JLPT_LEVELS[0];
+  let next: typeof JLPT_LEVELS[0] | null = JLPT_LEVELS[1];
+  for (let i = JLPT_LEVELS.length - 1; i >= 0; i--) {
+    if (score >= JLPT_LEVELS[i].threshold) {
+      current = JLPT_LEVELS[i];
+      next = JLPT_LEVELS[i + 1] ?? null;
+      break;
+    }
+  }
+  return { current, next };
+}
+
+function JLPTProgressBar({ score }: { score: number }) {
+  const { current, next } = getJlptLevel(score);
+  const progress = next
+    ? Math.min(100, ((score - current.threshold) / (next.threshold - current.threshold)) * 100)
+    : 100;
+  return (
+    <div className="px-4 py-2 bg-gray-800 rounded-lg mx-2 mb-2">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-bold text-white">JLPT {current.level}</span>
+        {next ? (
+          <span className="text-xs text-gray-400">次: {next.level} (あと{next.threshold - score}pt)</span>
+        ) : (
+          <span className="text-xs text-yellow-400 font-bold">MAX LEVEL!</span>
+        )}
+      </div>
+      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${current.color}`}
+          style={{ width: `${progress}%` }}
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`JLPTレベル ${current.level} 進捗 ${Math.round(progress)}%`}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── React Component ──────────────────────────────────────────────────────────
 
 export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "all" }: KanjiGameProps = {}) {
@@ -1030,6 +1083,13 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         className="w-[400px] max-w-full"
         style={{ height: 620, position: "relative" }}
       />
+
+      {/* JLPT進捗バー */}
+      {!state.gameOver && (
+        <div className="w-full max-w-[400px]">
+          <JLPTProgressBar score={state.score} />
+        </div>
+      )}
 
       {/* ── コンボカウンター ─────────────────────────────────────────────── */}
       {showCombo && comboState.count >= 2 && !state.gameOver && (
