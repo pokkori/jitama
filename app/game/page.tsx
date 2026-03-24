@@ -321,6 +321,7 @@ function GamePageInner() {
           <button
             onClick={() => setShowDifficultySelect(true)}
             className="text-xs bg-indigo-700/70 hover:bg-indigo-600 text-white font-bold px-2.5 py-1 rounded-full transition-colors"
+            aria-label="難易度設定を開く"
             title="難易度設定"
           >
             {DIFFICULTY_LABELS[difficulty].emoji} {DIFFICULTY_LABELS[difficulty].label}
@@ -329,6 +330,7 @@ function GamePageInner() {
           <button
             onClick={() => setShowStatsPanel(true)}
             className="text-xs bg-purple-700/60 hover:bg-purple-600 text-white font-bold px-2.5 py-1 rounded-full transition-colors"
+            aria-label="学習統計を開く"
             title="学習統計"
           >
             
@@ -336,6 +338,7 @@ function GamePageInner() {
           {!isPremium && (
             <button
               onClick={() => setShowPayjpModal(true)}
+              aria-label="プレミアムプランで無制限プレイする"
               className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1 rounded-full transition-colors"
             >
                無制限
@@ -348,6 +351,7 @@ function GamePageInner() {
       <div className="w-full max-w-[400px] flex border-b border-purple-800">
         <button
           onClick={() => setActiveTab("merge")}
+          aria-label="マージゲームタブを選択する"
           className={`flex-1 py-2.5 text-sm font-bold transition-colors ${
             activeTab === "merge"
               ? "text-yellow-300 border-b-2 border-yellow-300"
@@ -358,6 +362,7 @@ function GamePageInner() {
         </button>
         <button
           onClick={() => setActiveTab("quiz")}
+          aria-label="漢字クイズタブを選択する"
           className={`flex-1 py-2.5 text-sm font-bold transition-colors ${
             activeTab === "quiz"
               ? "text-yellow-300 border-b-2 border-yellow-300"
@@ -400,6 +405,7 @@ function GamePageInner() {
           </div>
           <button
             onClick={() => setShowModeSelect(true)}
+            aria-label="JLPTモードを変更する"
             className="text-xs text-purple-400 hover:text-purple-200 border border-purple-700 hover:border-purple-500 px-3 py-1 rounded-full transition-colors"
           >
             モード変更
@@ -476,6 +482,7 @@ function GamePageInner() {
             </div>
             <button
               onClick={() => setShowModeSelect(false)}
+              aria-label="モード選択をキャンセルして閉じる"
               className="w-full mt-4 text-xs text-purple-500 hover:text-purple-400 underline"
             >
               キャンセル / Cancel
@@ -509,12 +516,14 @@ function GamePageInner() {
                 setShowLimitDialog(false);
                 setShowPayjpModal(true);
               }}
+              aria-label="今すぐプレミアムプランに登録する"
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mb-3 transition-colors"
             >
               今すぐプレミアムになる
             </button>
             <button
               onClick={() => setShowLimitDialog(false)}
+              aria-label="制限ダイアログを閉じて明日また無料でプレイする"
               className="text-xs text-purple-500 hover:text-purple-400 underline"
             >
               明日また無料でプレイする
@@ -563,6 +572,7 @@ function GamePageInner() {
             </div>
             <button
               onClick={() => setShowDifficultySelect(false)}
+              aria-label="難易度選択をキャンセルして閉じる"
               className="w-full mt-4 text-xs text-purple-500 hover:text-purple-400 underline"
             >
               キャンセル
@@ -606,6 +616,7 @@ function GamePageInner() {
             </div>
             <button
               onClick={() => setShowStatsPanel(false)}
+              aria-label="学習統計パネルを閉じる"
               className="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
             >
               閉じる
@@ -633,9 +644,10 @@ function GamePageInner() {
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl relative">
             <button
               onClick={() => setShowPayjpModal(false)}
+              aria-label="決済モーダルを閉じる"
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
             >
-              
+
             </button>
             <div className="text-4xl mb-3"></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">プレミアムプランに登録</h2>
