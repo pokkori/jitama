@@ -20,7 +20,7 @@ export default function Image() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 80, marginBottom: 8 }}>🀄</div>
+        <div style={{ fontSize: 80, marginBottom: 8 }}></div>
         <div style={{ fontSize: 64, fontWeight: 700, color: "#fbbf24", marginBottom: 8, textAlign: "center" }}>
           字玉 JITAMA
         </div>
@@ -31,7 +31,7 @@ export default function Image() {
           部首を落として合体させよう！スイカゲーム式 × 漢字
         </div>
         <div style={{ fontSize: 22, color: "#a78bfa", marginTop: 10, textAlign: "center" }}>
-          JLPT N5〜N1 対応 · 全年齢 · 無料でプレイ ✨
+          JLPT N5〜N1 対応 · 全年齢 · 無料でプレイ 
         </div>
         <div
           style={{
@@ -40,7 +40,7 @@ export default function Image() {
             gap: 12,
           }}
         >
-          {["木 + 木 = 林", "林 + 木 = 森", "森 + ？ = 🎯"].map((label) => (
+          {["木 + 木 = 林", "林 + 木 = 森", "森 + ？ = "].map((label) => (
             <div
               key={label}
               style={{

@@ -54,9 +54,9 @@ function getWeeklyStats(): { totalPlays: number; correctRate: number } {
 
 // 疑似週間ランキングデータ（localStorageのスコア + ダミーユーザー）
 const DUMMY_RANKING = [
-  { rank: 1, name: "漢字マスター", score: 8420, badge: "🏆" },
-  { rank: 2, name: "JLPT挑戦中", score: 6731, badge: "🥈" },
-  { rank: 3, name: "字玉ガチ勢", score: 5289, badge: "🥉" },
+  { rank: 1, name: "漢字マスター", score: 8420, badge: "" },
+  { rank: 2, name: "JLPT挑戦中", score: 6731, badge: "" },
+  { rank: 3, name: "字玉ガチ勢", score: 5289, badge: "" },
   { rank: 4, name: "朝活プレイヤー", score: 4102, badge: "4️⃣" },
   { rank: 5, name: "N5クリア目標", score: 2847, badge: "5️⃣" },
 ];
@@ -84,7 +84,7 @@ export default function WeeklyRankingSection() {
 
   // ランキングに自分を挿入
   const rankingWithMe = bestScore > 0
-    ? [...DUMMY_RANKING, { rank: myRank ?? 6, name: "あなた", score: bestScore, badge: "⭐" }]
+    ? [...DUMMY_RANKING, { rank: myRank ?? 6, name: "あなた", score: bestScore, badge: "" }]
         .sort((a, b) => b.score - a.score)
         .slice(0, 6)
         .map((item, i) => ({ ...item, rank: i + 1 }))
@@ -96,7 +96,7 @@ export default function WeeklyRankingSection() {
         {/* 週間ランキング */}
         <div className="bg-gradient-to-br from-yellow-900/30 to-amber-900/30 border border-yellow-600/40 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-yellow-300">🏆 今週のハイスコアランキング</h2>
+            <h2 className="text-sm font-bold text-yellow-300"> 今週のハイスコアランキング</h2>
             <span className="text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-full">毎週月曜リセット</span>
           </div>
           <div className="space-y-2">
@@ -138,7 +138,7 @@ export default function WeeklyRankingSection() {
 
         {/* 学習レポート */}
         <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border border-purple-600/40 rounded-2xl p-5">
-          <h2 className="text-sm font-bold text-purple-300 mb-4">📊 あなたの学習レポート（今週）</h2>
+          <h2 className="text-sm font-bold text-purple-300 mb-4"> あなたの学習レポート（今週）</h2>
           {weeklyStats.totalPlays === 0 && bestScore === 0 ? (
             <div className="text-center py-4">
               <p className="text-xs text-purple-400">まだ今週のプレイ記録がありません</p>

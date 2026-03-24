@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getQuizQuestions, type QuizQuestion } from "@/lib/quiz-data";
 
-// ─── 苦手漢字リスト ───────────────────────────────────────────────────────────
+//  苦手漢字リスト 
 const WEAK_KANJI_KEY = "jitama_weak_kanji";
 
 interface WeakKanji {
@@ -34,7 +34,7 @@ function recordWeakKanji(kanji: string, correct: string, meaning: string): WeakK
   return sorted;
 }
 
-// ─── クイズ成績履歴 ──────────────────────────────────────────────────────────
+//  クイズ成績履歴 
 const QUIZ_HISTORY_KEY = "jitama_quiz_history";
 interface QuizHistoryEntry {
   level: string;
@@ -67,7 +67,7 @@ function QuizHistoryGraph({ history }: { history: QuizHistoryEntry[] }) {
   const best = Math.max(...recent.map(h => h.pct));
   return (
     <div className="bg-white/5 border border-purple-800/50 rounded-2xl p-4 mb-4">
-      <p className="text-xs text-purple-400 font-bold mb-3">📈 成績の推移（最新{recent.length}回）</p>
+      <p className="text-xs text-purple-400 font-bold mb-3"> 成績の推移（最新{recent.length}回）</p>
       <div className="flex items-end gap-1.5 h-16 mb-2">
         {recent.map((h, i) => {
           const color = h.pct >= 80 ? "#fbbf24" : h.pct >= 60 ? "#a78bfa" : "#6b7280";
@@ -242,7 +242,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
   const handleShare = () => {
     const { score, level } = state;
     const levelLabel = QUIZ_LEVELS.find((l) => l.key === level)?.label ?? level;
-    const text = `字玉JITAMAクイズ【${levelLabel}】${score}/${QUESTIONS_PER_SESSION}問正解！漢字の読み方テストやってみて👇 #字玉 #JITAMA #漢字クイズ`;
+    const text = `字玉JITAMAクイズ【${levelLabel}】${score}/${QUESTIONS_PER_SESSION}問正解！漢字の読み方テストやってみて #字玉 #JITAMA #漢字クイズ`;
     const url = "https://jitama.vercel.app";
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -266,12 +266,12 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
     setShowWeakList(false);
   };
 
-  // ── Level Select ──────────────────────────────────────────────────────────
+  //  Level Select 
   if (state.phase === "select") {
     return (
       <div className="w-full max-w-[400px] mx-auto px-4 py-6">
         <div className="text-center mb-6">
-          <div className="text-2xl mb-1">🎌</div>
+          <div className="text-2xl mb-1"></div>
           <h2 className="text-lg font-bold text-white">漢字クイズモード</h2>
           <p className="text-xs text-purple-300 mt-1">読み方を選んで答えよう！ · {QUESTIONS_PER_SESSION}問 · {TIME_PER_QUESTION}秒制限</p>
         </div>
@@ -313,7 +313,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
                   </span>
                 </div>
                 {locked ? (
-                  <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">⭐ プレミアム</span>
+                  <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold"> プレミアム</span>
                 ) : (
                   <span className="text-purple-400 text-lg">→</span>
                 )}
@@ -327,7 +327,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
           <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
             <div className="bg-[#1a0a2e] border border-red-700/60 rounded-2xl p-5 max-w-sm w-full max-h-[80vh] flex flex-col">
               <div className="text-center mb-4">
-                <div className="text-xl mb-1">😓</div>
+                <div className="text-xl mb-1"></div>
                 <h3 className="text-base font-bold text-white">苦手漢字リスト</h3>
                 <p className="text-xs text-red-300 mt-1">間違えた漢字をまとめて復習しよう</p>
               </div>
@@ -364,7 +364,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
     );
   }
 
-  // ── Playing ───────────────────────────────────────────────────────────────
+  //  Playing 
   if (state.phase === "playing") {
     const q = state.questions[state.current];
     const progress = ((state.current) / state.questions.length) * 100;
@@ -411,7 +411,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
         {/* Feedback badge */}
         {state.answerState !== "unanswered" && (
           <div className={`text-center text-lg font-bold mb-3 ${state.answerState === "correct" ? "text-green-400" : "text-red-400"}`}>
-            {state.answerState === "correct" ? "✓ 正解！" : `✗ 正解: ${q.correct}`}
+            {state.answerState === "correct" ? " 正解！" : ` 正解: ${q.correct}`}
           </div>
         )}
 
@@ -447,12 +447,12 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
     );
   }
 
-  // ── Result ────────────────────────────────────────────────────────────────
+  //  Result 
   const pct = Math.round((state.score / QUESTIONS_PER_SESSION) * 100);
-  const rank = pct >= 90 ? { label: "満点マスター！", color: "text-yellow-300", emoji: "🏆" }
-    : pct >= 70 ? { label: "上級者！", color: "text-green-400", emoji: "⭐" }
-    : pct >= 50 ? { label: "中級者！", color: "text-blue-400", emoji: "📗" }
-    : { label: "もう一度チャレンジ！", color: "text-purple-300", emoji: "📖" };
+  const rank = pct >= 90 ? { label: "満点マスター！", color: "text-yellow-300", emoji: "" }
+    : pct >= 70 ? { label: "上級者！", color: "text-green-400", emoji: "" }
+    : pct >= 50 ? { label: "中級者！", color: "text-blue-400", emoji: "" }
+    : { label: "もう一度チャレンジ！", color: "text-purple-300", emoji: "" };
 
   return (
     <div className="w-full max-w-[400px] mx-auto px-4 py-6">
@@ -475,7 +475,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
             <span className="text-white font-bold text-xl w-12 text-center">{r.kanji}</span>
             <span className="text-purple-300 flex-1 text-center">{r.correct}</span>
             <span className={r.ok ? "text-green-400 font-bold" : "text-red-400 font-bold"}>
-              {r.ok ? "✓" : "✗"}
+              {r.ok ? "" : ""}
             </span>
           </div>
         ))}
@@ -485,7 +485,7 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
         onClick={handleShare}
         className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl mb-3"
       >
-        スコアをXでシェア 🐦
+        スコアをXでシェア 
       </button>
       <button
         onClick={() => setState((prev) => ({ ...prev, phase: "select" }))}

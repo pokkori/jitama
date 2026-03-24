@@ -20,7 +20,7 @@ export const JLPT_MODES: JlptMode[] = [
     labelEn: "Normal Mode",
     description: "ランダム漢字でプレイ",
     descriptionEn: "Random kanji — all levels",
-    emoji: "🎮",
+    emoji: "",
     color: "from-purple-600 to-indigo-600",
   },
   {
@@ -29,7 +29,7 @@ export const JLPT_MODES: JlptMode[] = [
     labelEn: "JLPT N5",
     description: "N5漢字のみ（入門）",
     descriptionEn: "Beginner — 100 basic kanji",
-    emoji: "🌱",
+    emoji: "",
     color: "from-green-600 to-emerald-600",
   },
   {
@@ -38,7 +38,7 @@ export const JLPT_MODES: JlptMode[] = [
     labelEn: "JLPT N4",
     description: "N4漢字のみ（初級）",
     descriptionEn: "Elementary — everyday kanji",
-    emoji: "📗",
+    emoji: "",
     color: "from-teal-600 to-cyan-600",
   },
   {
@@ -47,7 +47,7 @@ export const JLPT_MODES: JlptMode[] = [
     labelEn: "JLPT N1–N3",
     description: "N1〜N3（上級者向け）",
     descriptionEn: "Advanced — mastery level",
-    emoji: "🏆",
+    emoji: "",
     color: "from-orange-600 to-red-600",
   },
 ];

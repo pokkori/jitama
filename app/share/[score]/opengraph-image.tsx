@@ -51,7 +51,7 @@ export default async function Image({
             opacity: 0.05,
           }}
         >
-          🀄
+          
         </div>
 
         {/* タイトル */}

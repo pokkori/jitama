@@ -38,7 +38,7 @@ export default function LandingPage() {
         <div className="mb-6 bg-white/10 backdrop-blur-sm bg-gradient-to-r from-yellow-500/20 to-pink-500/20 border border-white/20 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🏆</span>
+              <span className="text-xl"></span>
               <span className="text-sm font-bold text-yellow-300">今日のデイリーチャレンジ</span>
             </div>
             <span className="text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-full font-bold">毎日更新</span>
@@ -85,9 +85,9 @@ export default function LandingPage() {
         </Link>
         <p className="text-xs text-purple-400 mt-1">N5は小学レベルの漢字・誰でも遊べます</p>
         <div className="flex justify-center gap-2 flex-wrap mt-3">
-          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">📱 アプリ不要</span>
-          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">🌐 ブラウザで今すぐ</span>
-          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1">✨ 無料で遊べる</span>
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1"> アプリ不要</span>
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1"> ブラウザで今すぐ</span>
+          <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-700 rounded-full px-3 py-1"> 無料で遊べる</span>
         </div>
 
         {/* デイリーチャレンジ専用ページへのリンク */}
@@ -98,7 +98,7 @@ export default function LandingPage() {
             style={{ background: "rgba(234,179,8,0.15)", color: "#fde047", border: "1px solid rgba(234,179,8,0.4)" }}
             aria-label="今日のデイリーチャレンジページを開く"
           >
-            📅 デイリーチャレンジ
+             デイリーチャレンジ
           </Link>
           <Link
             href="/game?mode=N5"
@@ -106,7 +106,7 @@ export default function LandingPage() {
             style={{ background: "rgba(168,85,247,0.15)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.4)" }}
             aria-label="N5フリーモードでゲームを開始する"
           >
-            🀄 フリーモード
+             フリーモード
           </Link>
         </div>
 
@@ -160,11 +160,11 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: "👆", title: "タップで落とす", desc: "好きな位置をタップして漢字を落とす" },
-            { icon: "✨", title: "同じ字が合体", desc: "同じ漢字が触れると合体して進化する" },
-            { icon: "🏆", title: "高得点を狙え", desc: "大きい漢字ほどハイスコア。「字」を出せ！" },
+            { icon: "", title: "タップで落とす", desc: "好きな位置をタップして漢字を落とす" },
+            { icon: "", title: "同じ字が合体", desc: "同じ漢字が触れると合体して進化する" },
+            { icon: "", title: "高得点を狙え", desc: "大きい漢字ほどハイスコア。「字」を出せ！" },
           ].map((s) => (
-            <div key={s.title} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20 shadow-lg">
+            <div key={s.title} className="rounded-xl p-4 text-center shadow-lg" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px' }}>
               <div className="text-3xl mb-2">{s.icon}</div>
               <p className="font-bold text-sm mb-1">{s.title}</p>
               <p className="text-xs text-purple-300">{s.desc}</p>
@@ -207,7 +207,7 @@ export default function LandingPage() {
                 >
                   {isPremiumMode && (
                     <span className="absolute top-1.5 right-1.5 text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-bold">
-                      ⭐ プレミアム
+                       プレミアム
                     </span>
                   )}
                   {mode.key === "N5" && (
@@ -223,7 +223,7 @@ export default function LandingPage() {
               );
             })}
           </div>
-          <div className="mt-4 bg-white/5 border border-emerald-800/40 rounded-xl px-4 py-3">
+          <div className="mt-4 rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px' }}>
             <p className="text-xs text-emerald-300 font-medium text-center mb-1">
               JLPTモードの学習機能
             </p>
@@ -244,16 +244,16 @@ export default function LandingPage() {
       {/* SNS / Social proof */}
       <section className="max-w-lg mx-auto px-4 py-8 text-center">
         <h2 className="text-sm text-purple-400 mb-4">SNSでスコアをシェア</h2>
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
+        <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '16px' }}>
           <p className="text-lg font-bold text-yellow-300 mb-1">
-            「字玉で1,234点！段位：漢字使い⚡」
+            「字玉で1,234点！段位：漢字使い」
           </p>
           {/* デイリーチャレンジ絵文字グリッドのサンプル */}
           <div className="my-3 bg-white/5 border border-purple-700/50 rounded-xl px-4 py-3 text-left">
-            <p className="text-[10px] text-purple-400 mb-1 font-bold">📋 シェアされるテキストのイメージ</p>
-            <p className="text-xs text-purple-200 font-mono whitespace-pre-line leading-relaxed">{`字玉JITAMAで1,234点！段位：⚡漢字使い！
-📅 今日のチャレンジ: 1234/2000pt 🟨🟨🟨⬛⬛
-あなたは何段位まで上がれる？🀄
+            <p className="text-[10px] text-purple-400 mb-1 font-bold"> シェアされるテキストのイメージ</p>
+            <p className="text-xs text-purple-200 font-mono whitespace-pre-line leading-relaxed">{`字玉JITAMAで1,234点！段位：漢字使い！
+ 今日のチャレンジ: 1234/2000pt ⬛⬛
+あなたは何段位まで上がれる？
 → https://jitama.vercel.app #字玉 #JITAMA`}</p>
           </div>
           <p className="text-sm text-purple-200 mb-4">
@@ -262,7 +262,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col gap-2">
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル🀄 どこまで合体できる？ → https://jitama.vercel.app #字玉 #漢字 #パズルゲーム #JLPT")}`}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル どこまで合体できる？ → https://jitama.vercel.app #字玉 #漢字 #パズルゲーム #JLPT")}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="字玉JITAMAをXでシェアする"
@@ -275,7 +275,7 @@ export default function LandingPage() {
               Xで字玉を紹介する
             </a>
             <a
-              href={`https://line.me/R/msg/text/?${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル🀄 どこまで合体できる？ https://jitama.vercel.app")}`}
+              href={`https://line.me/R/msg/text/?${encodeURIComponent("字玉 JITAMA — 漢字が合体して進化するスイカゲーム系パズル どこまで合体できる？ https://jitama.vercel.app")}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="字玉JITAMAをLINEで友達に送る"
@@ -293,14 +293,14 @@ export default function LandingPage() {
 
       {/* 字玉をもっと楽しむ3選 */}
       <section className="max-w-lg mx-auto px-4 py-6">
-        <h2 className="text-sm font-bold text-purple-400 mb-4 text-center">📋 字玉をもっと楽しむ3選</h2>
+        <h2 className="text-sm font-bold text-purple-400 mb-4 text-center"> 字玉をもっと楽しむ3選</h2>
         <ol className="space-y-3">
           {[
-            { icon: "🀄", title: "JLPT N1漢字を全制覇", desc: "最上位の漢字「覇」まで合体できればN1レベル！漢字の学習にも使えます。" },
-            { icon: "🏆", title: "友達と最高スコアを競う", desc: "ゲームオーバー後にXでスコアをシェアして、誰が一番合体できるか競争しよう。" },
-            { icon: "🎯", title: "毎日5分の脳トレとして", desc: "隙間時間の漢字パズル。毎日プレイすると漢字力・空間認識力が鍛えられます。" },
+            { icon: "", title: "JLPT N1漢字を全制覇", desc: "最上位の漢字「覇」まで合体できればN1レベル！漢字の学習にも使えます。" },
+            { icon: "", title: "友達と最高スコアを競う", desc: "ゲームオーバー後にXでスコアをシェアして、誰が一番合体できるか競争しよう。" },
+            { icon: "", title: "毎日5分の脳トレとして", desc: "隙間時間の漢字パズル。毎日プレイすると漢字力・空間認識力が鍛えられます。" },
           ].map((item, i) => (
-            <li key={i} className="flex items-start gap-3 bg-white/5 border border-purple-800/40 rounded-xl p-3">
+            <li key={i} className="flex items-start gap-3 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px' }}>
               <span className="text-2xl leading-none">{item.icon}</span>
               <div>
                 <div className="text-sm font-bold text-purple-200">{i + 1}. {item.title}</div>
@@ -325,7 +325,7 @@ export default function LandingPage() {
       {/* A8.netアフィリエイト：ハンドメイド・BASE */}
       <section className="max-w-lg mx-auto px-4 pb-6">
         <div className="bg-yellow-950/40 border border-yellow-600/40 rounded-2xl p-4">
-          <p className="text-sm font-bold text-yellow-300 mb-3">🎨 ゲームが好きなら創作活動も（PR）</p>
+          <p className="text-sm font-bold text-yellow-300 mb-3"> ゲームが好きなら創作活動も（PR）</p>
           <div className="space-y-2">
             <a
               href="https://px.a8.net/svt/ejp?a8mat=4AZIOF+8PRGKY+4V0U+BXB8Z"
@@ -402,20 +402,20 @@ export default function LandingPage() {
       {/* Premium Section */}
       <section className="max-w-lg mx-auto px-4 py-8">
         <div className="bg-gradient-to-br from-purple-900/60 to-indigo-900/60 border border-purple-700 rounded-2xl p-8 text-center">
-          <div className="text-3xl mb-3">⭐</div>
+          <div className="text-3xl mb-3"></div>
           <h2 className="text-xl font-bold text-white mb-2">プレミアムプラン</h2>
           <p className="text-purple-300 text-sm mb-4">無制限プレイ + JLPT N4〜N1 漢字パック</p>
           <p className="text-4xl font-black text-white mb-1">¥480<span className="text-base font-normal text-purple-400">/月</span></p>
           <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
-            <li>✓ 1日の制限なし・無制限プレイ</li>
-            <li>✓ JLPT N4 漢字パック解放 📗</li>
-            <li>✓ JLPT N3〜N1 上級漢字パック解放 🏆</li>
-            <li>✓ 字玉の開発を応援</li>
+            <li> 1日の制限なし・無制限プレイ</li>
+            <li> JLPT N4 漢字パック解放 </li>
+            <li> JLPT N3〜N1 上級漢字パック解放 </li>
+            <li> 字玉の開発を応援</li>
           </ul>
           <PremiumButton />
           <div className="flex items-center justify-center gap-3 mt-3 text-xs">
-            <span className="text-purple-400">✅ いつでも解約可</span>
-            <span className="text-green-400 font-bold">🛡️ 30日返金保証</span>
+            <span className="text-purple-400"> いつでも解約可</span>
+            <span className="text-green-400 font-bold">️ 30日返金保証</span>
           </div>
         </div>
       </section>
@@ -425,9 +425,9 @@ export default function LandingPage() {
         <h2 className="text-center text-base font-bold text-purple-300 mb-5">こんな経験ありませんか？</h2>
         <div className="space-y-3">
           {[
-            { icon: "😓", text: "漢字を勉強しようとしてもドリルが退屈で続かない..." },
-            { icon: "😤", text: "JLPT対策の単語帳を買ったけど、結局放置している..." },
-            { icon: "💭", text: "楽しみながら自然に漢字を覚えられたらいいのに..." },
+            { icon: "", text: "漢字を勉強しようとしてもドリルが退屈で続かない..." },
+            { icon: "", text: "JLPT対策の単語帳を買ったけど、結局放置している..." },
+            { icon: "", text: "楽しみながら自然に漢字を覚えられたらいいのに..." },
           ].map((item, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: "12px", padding: "12px 14px" }}>
               <span style={{ fontSize: "22px" }}>{item.icon}</span>
@@ -443,13 +443,13 @@ export default function LandingPage() {
 
       {/* 攻略ヒント */}
       <section className="max-w-lg mx-auto px-4 pb-8">
-        <h2 className="text-center text-base font-bold text-yellow-300 mb-5">🏆 高得点を狙う攻略ヒント</h2>
+        <h2 className="text-center text-base font-bold text-yellow-300 mb-5"> 高得点を狙う攻略ヒント</h2>
         <div className="space-y-3">
           {[
-            { icon: "🎯", title: "端から積み上げる", desc: "漢字を端（左か右）に寄せて積み上げると、連鎖合体が起きやすくなります。真ん中に置くとすぐに詰まる原因に。" },
-            { icon: "👀", title: "次の漢字を確認する", desc: "右上に表示される「次の漢字」を見ながら落とす位置を決めましょう。同じ漢字が来たときに合体できる場所を作っておくのがコツ。" },
-            { icon: "🔗", title: "小さい漢字は捨て場所を作る", desc: "「一」「二」などの小さい漢字が溜まりやすい場所（コーナー）をひとつ作っておくと、フィールドが整理しやすくなります。" },
-            { icon: "⚡", title: "連鎖を狙う", desc: "合体した漢字が次の漢字と隣接するように配置すると連鎖が起き、一気にスコアが伸びます。「森」→「林」→「木」の順に積み上げておくのが理想。" },
+            { icon: "", title: "端から積み上げる", desc: "漢字を端（左か右）に寄せて積み上げると、連鎖合体が起きやすくなります。真ん中に置くとすぐに詰まる原因に。" },
+            { icon: "", title: "次の漢字を確認する", desc: "右上に表示される「次の漢字」を見ながら落とす位置を決めましょう。同じ漢字が来たときに合体できる場所を作っておくのがコツ。" },
+            { icon: "", title: "小さい漢字は捨て場所を作る", desc: "「一」「二」などの小さい漢字が溜まりやすい場所（コーナー）をひとつ作っておくと、フィールドが整理しやすくなります。" },
+            { icon: "", title: "連鎖を狙う", desc: "合体した漢字が次の漢字と隣接するように配置すると連鎖が起き、一気にスコアが伸びます。「森」→「林」→「木」の順に積み上げておくのが理想。" },
           ].map((hint, i) => (
             <div key={i} style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.2)", borderRadius: "12px", padding: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>

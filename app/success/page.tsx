@@ -43,7 +43,7 @@ function SuccessContent() {
 
       <div className="max-w-md w-full text-center">
         {/* Title */}
-        <div className="text-6xl mb-4">🎉</div>
+        <div className="text-6xl mb-4"></div>
         <div className="text-5xl font-bold mb-2">
           <span className="text-yellow-300">字</span>
           <span className="text-pink-400">玉</span>
@@ -60,21 +60,21 @@ function SuccessContent() {
           <h2 className="text-lg font-bold text-white mb-4 text-center">プレミアム特典</h2>
           <ul className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="text-yellow-400 text-xl mt-0.5">✓</span>
+              <span className="text-yellow-400 text-xl mt-0.5"></span>
               <div>
                 <p className="font-bold text-white">無制限プレイ</p>
                 <p className="text-sm text-purple-300">1日の制限なし。何回でも楽しめます</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="text-yellow-400 text-xl mt-0.5">✓</span>
+              <span className="text-yellow-400 text-xl mt-0.5"></span>
               <div>
                 <p className="font-bold text-white">JLPT N4〜N1 漢字パック解放</p>
                 <p className="text-sm text-purple-300">JLPTモードで読み・意味を学びながらプレイ</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="text-yellow-400 text-xl mt-0.5">✓</span>
+              <span className="text-yellow-400 text-xl mt-0.5"></span>
               <div>
                 <p className="font-bold text-white">字玉の開発を応援</p>
                 <p className="text-sm text-purple-300">あなたのサポートがゲームを進化させます</p>

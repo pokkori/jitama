@@ -31,9 +31,9 @@ const STREAK_DATE_KEY = "jitama_streak_date";
 export type DifficultyLevel = "easy" | "normal" | "hard";
 const DIFFICULTY_KEY = "jitama_difficulty";
 const DIFFICULTY_LABELS: Record<DifficultyLevel, { label: string; desc: string; emoji: string; speedFactor: number }> = {
-  easy:   { label: "かんたん", desc: "落下スピード遅め・N5基本漢字多め", emoji: "🌱", speedFactor: 0.7 },
-  normal: { label: "ふつう",   desc: "バランス良い標準設定", emoji: "⭐", speedFactor: 1.0 },
-  hard:   { label: "むずかしい", desc: "落下スピード速め・難しい漢字多め", emoji: "🔥", speedFactor: 1.4 },
+  easy:   { label: "かんたん", desc: "落下スピード遅め・N5基本漢字多め", emoji: "", speedFactor: 0.7 },
+  normal: { label: "ふつう",   desc: "バランス良い標準設定", emoji: "", speedFactor: 1.0 },
+  hard:   { label: "むずかしい", desc: "落下スピード速め・難しい漢字多め", emoji: "", speedFactor: 1.4 },
 };
 
 function getSavedDifficulty(): DifficultyLevel {
@@ -152,15 +152,15 @@ function JLPTPaywall({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl">
-        <div className="text-4xl mb-3">🎌</div>
+        <div className="text-4xl mb-3"></div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">JLPT N4〜N1はプレミアム</h2>
         <p className="text-sm text-gray-500 mb-4">
           月額¥480でN4・N3・N2・N1の<br />上級漢字パックが使い放題
         </p>
         <ul className="text-sm text-gray-600 space-y-1 mb-5 text-left">
-          <li>✓ 無制限プレイ（1日5回制限なし）</li>
-          <li>✓ N4 / N3〜N1 上級漢字パック解放</li>
-          <li>✓ 字玉の開発を応援</li>
+          <li> 無制限プレイ（1日5回制限なし）</li>
+          <li> N4 / N3〜N1 上級漢字パック解放</li>
+          <li> 字玉の開発を応援</li>
         </ul>
         <KomojuButton
           planId="standard"
@@ -294,14 +294,14 @@ function GamePageInner() {
         <div className="flex items-center gap-3">
           {bestScore > 0 && (
             <div className="flex items-center gap-1 text-xs text-yellow-300">
-              <span>🏆</span>
+              <span></span>
               <span className="font-bold">{bestScore.toLocaleString()}</span>
               {newBestScore && <span className="text-green-400 text-[10px] font-bold animate-pulse">NEW!</span>}
             </div>
           )}
           {gameStreak >= 1 && (
             <div className="flex items-center gap-1 text-xs text-orange-300">
-              <span>🔥</span>
+              <span></span>
               <span className="font-bold">{gameStreak}日連続！</span>
             </div>
           )}
@@ -313,7 +313,7 @@ function GamePageInner() {
             </div>
           )}
           {isPremium && (
-            <div className="text-xs text-green-400 font-bold">✓ プレミアム</div>
+            <div className="text-xs text-green-400 font-bold"> プレミアム</div>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -331,14 +331,14 @@ function GamePageInner() {
             className="text-xs bg-purple-700/60 hover:bg-purple-600 text-white font-bold px-2.5 py-1 rounded-full transition-colors"
             title="学習統計"
           >
-            📊
+            
           </button>
           {!isPremium && (
             <button
               onClick={() => setShowPayjpModal(true)}
               className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1 rounded-full transition-colors"
             >
-              ⭐ 無制限
+               無制限
             </button>
           )}
         </div>
@@ -354,7 +354,7 @@ function GamePageInner() {
               : "text-purple-400 hover:text-purple-200"
           }`}
         >
-          🀄 マージゲーム
+           マージゲーム
         </button>
         <button
           onClick={() => setActiveTab("quiz")}
@@ -364,17 +364,17 @@ function GamePageInner() {
               : "text-purple-400 hover:text-purple-200"
           }`}
         >
-          🎌 漢字クイズ
+           漢字クイズ
         </button>
       </div>
 
       {/* 今日の問題シェアバー */}
       <div className="w-full max-w-[400px] bg-[#1a0a2e]/60 border-b border-purple-800/30 px-4 py-1.5 flex items-center justify-between">
         <span className="text-[10px] text-purple-500">
-          📅 今日のチャレンジ: {new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}
+           今日のチャレンジ: {new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}
         </span>
         <a
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉JITAMAで今日のチャレンジに挑戦中！漢字を合体させて高スコアを目指せ🀄\nhttps://jitama.vercel.app?daily=" + new Date().toISOString().slice(0, 10) + "\n#字玉 #JITAMA #漢字パズル")}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("字玉JITAMAで今日のチャレンジに挑戦中！漢字を合体させて高スコアを目指せ\nhttps://jitama.vercel.app?daily=" + new Date().toISOString().slice(0, 10) + "\n#字玉 #JITAMA #漢字パズル")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-200 transition-colors"
@@ -418,10 +418,10 @@ function GamePageInner() {
         <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
           <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-6 max-w-sm w-full">
             <div className="text-center mb-5">
-              <div className="text-2xl mb-1">🎌</div>
+              <div className="text-2xl mb-1"></div>
               <h2 className="text-lg font-bold text-white">ゲームモード選択</h2>
               <p className="text-xs text-purple-400 mt-1">
-                Learn Kanji while playing!<br />Perfect for JLPT prep 🎌
+                Learn Kanji while playing!<br />Perfect for JLPT prep 
               </p>
             </div>
             <div className="space-y-3">
@@ -452,7 +452,7 @@ function GamePageInner() {
                           )}
                           {needsPremium && (
                             <span className="text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full ml-auto">
-                              ⭐ プレミアム
+                               プレミアム
                             </span>
                           )}
                           {!needsPremium && mode.key !== "all" && mode.key !== "N5" && isPremium && (
@@ -488,7 +488,7 @@ function GamePageInner() {
       {showLimitDialog && (
         <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
           <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-8 max-w-sm w-full text-center">
-            <div className="text-4xl mb-3">⭐</div>
+            <div className="text-4xl mb-3"></div>
             <h2 className="text-xl font-bold text-white mb-2">
               本日の無料プレイ（{FREE_LIMIT}回）を使い切りました
             </h2>
@@ -499,10 +499,10 @@ function GamePageInner() {
               ¥480<span className="text-base font-normal text-purple-400">/月</span>
             </p>
             <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
-              <li>✓ 1日の制限なし・無制限プレイ</li>
-              <li>✓ JLPT N4 漢字パック解放 📗</li>
-              <li>✓ JLPT N3〜N1 上級漢字パック解放 🏆</li>
-              <li>✓ 字玉の開発を応援</li>
+              <li> 1日の制限なし・無制限プレイ</li>
+              <li> JLPT N4 漢字パック解放 </li>
+              <li> JLPT N3〜N1 上級漢字パック解放 </li>
+              <li> 字玉の開発を応援</li>
             </ul>
             <button
               onClick={() => {
@@ -528,7 +528,7 @@ function GamePageInner() {
         <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
           <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-6 max-w-sm w-full">
             <div className="text-center mb-5">
-              <div className="text-2xl mb-1">⚙️</div>
+              <div className="text-2xl mb-1">️</div>
               <h2 className="text-lg font-bold text-white">難易度を選ぼう</h2>
               <p className="text-xs text-purple-400 mt-1">設定は次のゲームから反映されます</p>
             </div>
@@ -576,7 +576,7 @@ function GamePageInner() {
         <div className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
           <div className="bg-[#1a0a2e] border border-purple-600 rounded-2xl p-6 max-w-sm w-full">
             <div className="text-center mb-5">
-              <div className="text-2xl mb-1">📊</div>
+              <div className="text-2xl mb-1"></div>
               <h2 className="text-lg font-bold text-white">学習統計ダッシュボード</h2>
             </div>
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -594,7 +594,7 @@ function GamePageInner() {
               </div>
             </div>
             <div className="bg-purple-900/30 border border-purple-800/50 rounded-xl p-3 mb-4">
-              <p className="text-xs text-purple-400 font-bold mb-2">🏆 ベストスコア</p>
+              <p className="text-xs text-purple-400 font-bold mb-2"> ベストスコア</p>
               <p className="text-2xl font-black text-yellow-300">{bestScore > 0 ? bestScore.toLocaleString() : "まだ記録なし"}</p>
             </div>
             <div className="bg-indigo-900/30 border border-indigo-800/50 rounded-xl p-3 mb-4">
@@ -635,9 +635,9 @@ function GamePageInner() {
               onClick={() => setShowPayjpModal(false)}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
             >
-              ✕
+              
             </button>
-            <div className="text-4xl mb-3">🀄</div>
+            <div className="text-4xl mb-3"></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">プレミアムプランに登録</h2>
             <p className="text-sm text-gray-500 mb-4">月額¥480で無制限プレイ + JLPT N4〜N1漢字パック</p>
             <KomojuButton

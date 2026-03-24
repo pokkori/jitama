@@ -67,22 +67,22 @@ export default function EnLandingPage() {
         <div className="grid grid-cols-2 gap-4">
           {[
             {
-              icon: "🎮",
+              icon: "",
               title: "Physics Puzzle",
               desc: "Addictive Suika-style gameplay — drop and merge kanji tiles",
             },
             {
-              icon: "📚",
+              icon: "",
               title: "JLPT N5 ~ N1",
               desc: "Kanji from all JLPT levels. Learn readings & meanings on every merge",
             },
             {
-              icon: "🌐",
+              icon: "",
               title: "Play in Browser",
               desc: "No app download required. Works on any device instantly",
             },
             {
-              icon: "🏆",
+              icon: "",
               title: "Share Scores on X",
               desc: "Post your high score to X and challenge your friends",
             },
@@ -138,9 +138,9 @@ export default function EnLandingPage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: "👆", title: "Tap to Drop", desc: "Tap anywhere to drop a kanji tile into the field" },
-            { icon: "✨", title: "Same = Merge", desc: "Matching kanji touch and combine into a higher-level character" },
-            { icon: "🏆", title: "Aim for 字!", desc: "Higher kanji score more points. Can you reach 字?" },
+            { icon: "", title: "Tap to Drop", desc: "Tap anywhere to drop a kanji tile into the field" },
+            { icon: "", title: "Same = Merge", desc: "Matching kanji touch and combine into a higher-level character" },
+            { icon: "", title: "Aim for 字!", desc: "Higher kanji score more points. Can you reach 字?" },
           ].map((s) => (
             <div key={s.title} className="bg-white/5 rounded-xl p-4 text-center border border-purple-800">
               <div className="text-3xl mb-2">{s.icon}</div>
@@ -169,10 +169,10 @@ export default function EnLandingPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { key: "N5", emoji: "🌱", label: "JLPT N5", sub: "Beginner · Free", premium: false },
-              { key: "N4", emoji: "📗", label: "JLPT N4", sub: "Elementary", premium: true },
-              { key: "N3", emoji: "📘", label: "JLPT N3~N2", sub: "Intermediate", premium: true },
-              { key: "N1", emoji: "🏆", label: "JLPT N1", sub: "Advanced", premium: true },
+              { key: "N5", emoji: "", label: "JLPT N5", sub: "Beginner · Free", premium: false },
+              { key: "N4", emoji: "", label: "JLPT N4", sub: "Elementary", premium: true },
+              { key: "N3", emoji: "", label: "JLPT N3~N2", sub: "Intermediate", premium: true },
+              { key: "N1", emoji: "", label: "JLPT N1", sub: "Advanced", premium: true },
             ].map((mode) => (
               <Link
                 key={mode.key}
@@ -185,7 +185,7 @@ export default function EnLandingPage() {
               >
                 {mode.premium && (
                   <span className="absolute top-1.5 right-1.5 text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-bold">
-                    ⭐ Premium
+                     Premium
                   </span>
                 )}
                 {!mode.premium && (
@@ -226,7 +226,7 @@ export default function EnLandingPage() {
           </p>
           <a
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              "JITAMA — Merge kanji to learn Japanese! Physics puzzle meets JLPT study 🀄 → https://jitama.vercel.app/en #JITAMA #LearnJapanese #JLPT"
+              "JITAMA — Merge kanji to learn Japanese! Physics puzzle meets JLPT study  → https://jitama.vercel.app/en #JITAMA #LearnJapanese #JLPT"
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -255,7 +255,7 @@ export default function EnLandingPage() {
       {/* Premium Section */}
       <section className="max-w-lg mx-auto px-4 py-8">
         <div className="bg-gradient-to-br from-purple-900/60 to-indigo-900/60 border border-purple-700 rounded-2xl p-8 text-center">
-          <div className="text-3xl mb-3">⭐</div>
+          <div className="text-3xl mb-3"></div>
           <h2 className="text-xl font-bold text-white mb-2">Unlock All JLPT Levels</h2>
           <p className="text-purple-300 text-sm mb-4">
             Unlimited play + JLPT N4 ~ N1 kanji packs
@@ -265,10 +265,10 @@ export default function EnLandingPage() {
             <span className="text-base font-normal text-purple-400">/month</span>
           </p>
           <ul className="text-sm text-purple-200 space-y-1 mb-6 text-left">
-            <li>✓ Unlimited plays — no daily limit</li>
-            <li>✓ JLPT N4 kanji pack unlocked 📗</li>
-            <li>✓ JLPT N3 ~ N1 advanced kanji pack 🏆</li>
-            <li>✓ Support JITAMA development</li>
+            <li> Unlimited plays — no daily limit</li>
+            <li> JLPT N4 kanji pack unlocked </li>
+            <li> JLPT N3 ~ N1 advanced kanji pack </li>
+            <li> Support JITAMA development</li>
           </ul>
           <Link
             href="/game"

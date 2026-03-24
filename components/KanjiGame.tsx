@@ -12,7 +12,7 @@ import LocalRanking, {
 } from "@/components/LocalRanking";
 import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-utils";
 
-// ─── 漢字合体 成り立ちデータ ────────────────────────────────────────────────
+//  漢字合体 成り立ちデータ 
 interface MergeKnowledge {
   before1: string;
   before2: string;
@@ -36,7 +36,7 @@ const MERGE_KNOWLEDGE: Record<number, MergeKnowledge> = {
   11: { before1: "品", before2: "品", after: "字", reading: "じ・あざ", trivia: "「子」が「宀（屋根）」の下で学ぶ＝文字" },
 };
 
-// ─── デイリーランキング（localStorage） ────────────────────────────────────────
+//  デイリーランキング（localStorage） 
 
 interface DailyRankingEntry {
   score: number;
@@ -71,7 +71,7 @@ function getDailyRank(score: number): number | null {
   return idx + 1;
 }
 
-// ─── ストリーク ─────────────────────────────────────────────────────────────
+//  ストリーク 
 
 function getStreakData(): { streak: number; lastDate: string } {
   try {
@@ -89,7 +89,7 @@ function updateStreak(): { streak: number; isNew: boolean } {
   return { streak: newStreak, isNew: true };
 }
 
-// ─── デイリーチャレンジ (日付seed) ───────────────────────────────────────────
+//  デイリーチャレンジ (日付seed) 
 
 function getDailyChallengeTarget(): number {
   const d = new Date();
@@ -118,7 +118,7 @@ function saveDailyChallengeScore(score: number): void {
   }
 }
 
-// ─── シェアカウント（localStorageベースの擬似カウント）──────────────────────
+//  シェアカウント（localStorageベースの擬似カウント）
 
 function getShareCount(): number {
   const today = new Date().toISOString().slice(0, 10);
@@ -198,7 +198,7 @@ interface KanjiGameProps {
   jlptMode?: JlptLevel;
 }
 
-// ─── Phaser Scene ────────────────────────────────────────────────────────────
+//  Phaser Scene 
 
 function createGameScene(
   onScoreUpdate: (score: number) => void,
@@ -256,7 +256,7 @@ function createGameScene(
       this.dangerLine.lineBetween(0, this.DANGER_Y, this.W, this.DANGER_Y);
 
       // "DANGER" label
-      this.add.text(4, this.DANGER_Y - 18, "▼ ここまでいったらゲームオーバー", {
+      this.add.text(4, this.DANGER_Y - 18, " ここまでいったらゲームオーバー", {
         fontSize: "10px",
         color: "#ff6666",
         alpha: 0.8,
@@ -287,7 +287,7 @@ function createGameScene(
       this.spawnPreview();
     }
 
-    // ── Spawn hovering preview piece ──────────────────────────────────────────
+    //  Spawn hovering preview piece 
 
     private spawnPreview() {
       this.currentLevel = this.nextLevel;
@@ -305,7 +305,7 @@ function createGameScene(
       this.canDrop = true;
     }
 
-    // ── Drop the preview piece (give it physics) ───────────────────────────
+    //  Drop the preview piece (give it physics) 
 
     private dropPiece() {
       if (!this.currentGfx) return;
@@ -340,7 +340,7 @@ function createGameScene(
       });
     }
 
-    // ── Create a kanji visual container ───────────────────────────────────────
+    //  Create a kanji visual container 
 
     private createKanjiContainer(
       x: number,
@@ -386,7 +386,7 @@ function createGameScene(
       return container;
     }
 
-    // ── Collision: check merge ─────────────────────────────────────────────────
+    //  Collision: check merge 
 
     private handleCollision(a: MatterJS.BodyType, b: MatterJS.BodyType) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -437,7 +437,7 @@ function createGameScene(
       });
     }
 
-    // ── Spawn a merged piece with physics ─────────────────────────────────────
+    //  Spawn a merged piece with physics 
 
     private spawnMergedPiece(x: number, y: number, level: number) {
       const kl = KANJI_LEVELS[level];
@@ -460,7 +460,7 @@ function createGameScene(
       (body as any).gfx = gfx;
     }
 
-    // ── Update loop ───────────────────────────────────────────────────────────
+    //  Update loop 
 
     update() {
       if (this.gameOver) return;
@@ -549,7 +549,7 @@ function createGameScene(
 
 const JITAMA_MAX_LEVEL = 11; // 「字」が最大レベル
 
-// ─── JLPT進捗バー ─────────────────────────────────────────────────────────────
+//  JLPT進捗バー 
 
 const JLPT_LEVELS = [
   { level: "N5", threshold: 0, color: "bg-green-400" },
@@ -602,7 +602,7 @@ function JLPTProgressBar({ score }: { score: number }) {
   );
 }
 
-// ─── React Component ──────────────────────────────────────────────────────────
+//  React Component 
 
 export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "all" }: KanjiGameProps = {}) {
   const currentModeInfo = JLPT_MODES.find((m) => m.key === jlptMode) ?? JLPT_MODES[0];
@@ -696,7 +696,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           // 段位アップ判定
           const rankUp = didRankUp(hs, newHs);
 
-          // ── ニックネーム入力待ちに移行（ランキング保存は名前入力後）──
+          //  ニックネーム入力待ちに移行（ランキング保存は名前入力後）
           setState((prev) => ({
             ...prev,
             gameOver: true,
@@ -719,7 +719,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           // 最高到達レベルを更新
           if (level > highestLevelRef.current) highestLevelRef.current = level;
 
-          // ── コンボカウンター ───────────────────────────────────────────
+          //  コンボカウンター 
           const now = Date.now();
           setComboState((prev) => {
             const isCombo = now - prev.lastMergeAt < 3000;
@@ -733,7 +733,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             setComboState((prev) => ({ ...prev, count: 0 }));
           }, 2000);
 
-          // ── 合体アニメ演出モーダル ─────────────────────────────────────
+          //  合体アニメ演出モーダル 
           const knowledge = MERGE_KNOWLEDGE[level] ?? null;
           const animId = ++mergeAnimIdRef.current;
           setMergeAnimation({ id: animId, level, knowledge });
@@ -826,15 +826,15 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     }, 100);
   };
 
-  // ─── Wordle方式 漢字レベル絵文字グリッド（5段階）───────────────────────
-  // 到達レベルを5段階で🟩（到達）/🟨（あと1段階）/⬜（未到達）
+  //  Wordle方式 漢字レベル絵文字グリッド（5段階）
+  // 到達レベルを5段階で（到達）/（あと1段階）/⬜（未到達）
   const buildWordleGrid = (highestLevel: number): string => {
     // 12レベル（0-11）を5段階にマッピング: 0-1, 2-3, 4-5, 6-7, 8-11
     const thresholds = [2, 4, 6, 8, 12]; // 各段階の到達レベル閾値
     return thresholds.map((threshold, i) => {
       const prevThreshold = i > 0 ? thresholds[i - 1] : 0;
-      if (highestLevel >= threshold) return "🟩"; // この段階を到達済み
-      if (highestLevel >= prevThreshold) return "🟨"; // あと1段階（現在この段階にいる）
+      if (highestLevel >= threshold) return ""; // この段階を到達済み
+      if (highestLevel >= prevThreshold) return ""; // あと1段階（現在この段階にいる）
       return "⬜"; // 未到達
     }).join("");
   };
@@ -881,7 +881,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     const filled = Math.min(5, Math.round(pct * 5));
     const blocks = Array.from({ length: 5 }, (_, i) => {
       if (i < filled) {
-        return filled === 5 ? "🟩" : "🟨";
+        return filled === 5 ? "" : "";
       }
       return "⬛";
     }).join("");
@@ -897,16 +897,16 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     const emojiGrid = buildDailyChallengeEmoji(dc.best, dc.target);
     const today = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
     const dcLine = dc.cleared
-      ? `📅 ${today}のチャレンジ: クリア！ ${emojiGrid}`
-      : `📅 ${today}のチャレンジ: ${dc.best}/${dc.target}pt ${emojiGrid}`;
+      ? ` ${today}のチャレンジ: クリア！ ${emojiGrid}`
+      : ` ${today}のチャレンジ: ${dc.best}/${dc.target}pt ${emojiGrid}`;
     // 最後に合体した漢字をシェアテキストに含める
     const lastChar = lastMergedCharRef.current;
     const charPart = lastChar ? `漢字「${lastChar}」まで合体！` : "";
     const dailyRank = getDailyRank(state.score);
     const rankLine = dailyRank ? `本日ランキング: ${dailyRank}位` : "";
     const text = isHighScore
-      ? `【NEW記録🎉】字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`
-      : `字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった🀄\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`;
+      ? `【NEW記録】字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}に到達！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`
+      : `字玉JITAMA ${charPart}スコア${state.score}点！${modeLabel}段位：${rankLabel}！\n${rankLine}\n合体した漢字を見て漢字の意味が分かった\n${dcLine}\n→ https://jitama.vercel.app #字玉JITAMA #漢字`;
     const url = `https://jitama.vercel.app/share/${state.score}`;
     if (navigator.share) {
       navigator.share({ title: "字玉 JITAMA", text, url });
@@ -944,7 +944,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     }));
   };
 
-  // ─── 苦手漢字ミニクイズ（ゲームオーバー後） ───────────────────────────────
+  //  苦手漢字ミニクイズ（ゲームオーバー後） 
   const [weakQuizIdx, setWeakQuizIdx] = useState(0);
   const [weakQuizAnswer, setWeakQuizAnswer] = useState<string | null>(null);
   const weakEntries = Object.entries(MERGE_KNOWLEDGE);
@@ -965,9 +965,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const nextKanji = KANJI_LEVELS[state.nextLevel];
 
   const tutorialSteps = [
-    { icon: "👆", title: "タップして漢字を落とそう", desc: "好きな位置をタップすると漢字ボールが落下します" },
-    { icon: "✨", title: "同じ漢字が触れると合体！", desc: "同じ漢字同士が合体して次の漢字に進化します" },
-    { icon: "🏆", title: "「字」を目指せ！", desc: "「一」から「字」まで12段階。最高漢字を出そう！" },
+    { icon: "", title: "タップして漢字を落とそう", desc: "好きな位置をタップすると漢字ボールが落下します" },
+    { icon: "", title: "同じ漢字が触れると合体！", desc: "同じ漢字同士が合体して次の漢字に進化します" },
+    { icon: "", title: "「字」を目指せ！", desc: "「一」から「字」まで12段階。最高漢字を出そう！" },
   ];
 
   const dailyChallengeProgress = Math.min(100, Math.round((dailyChallenge.best / dailyChallenge.target) * 100));
@@ -1018,7 +1018,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
           <div className="px-6 py-3 rounded-2xl font-black text-white text-lg shadow-2xl animate-bounce"
             style={{ background: "linear-gradient(135deg, #f59e0b, #f472b6)", boxShadow: "0 0 30px rgba(245,158,11,0.7)" }}>
-            🔥 {streakState.streak}日連続プレイ！
+             {streakState.streak}日連続プレイ！
           </div>
         </div>
       )}
@@ -1027,7 +1027,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       <div className="w-full max-w-[400px] px-3 pt-2">
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-[10px] text-purple-400 font-bold">
-            📅 今日のチャレンジ {dailyChallenge.cleared ? "✅ クリア！" : `目標: ${dailyChallenge.target.toLocaleString()}pt`}
+             今日のチャレンジ {dailyChallenge.cleared ? " クリア！" : `目標: ${dailyChallenge.target.toLocaleString()}pt`}
           </span>
           <span className="text-[10px] text-yellow-400">{dailyChallengeProgress}%</span>
         </div>
@@ -1052,7 +1052,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             </div>
           )}
           {streakState.streak >= 2 && (
-            <div className="text-[10px] font-bold text-amber-400">🔥 {streakState.streak}日連続</div>
+            <div className="text-[10px] font-bold text-amber-400"> {streakState.streak}日連続</div>
           )}
         </div>
         <div className="flex gap-3">
@@ -1091,7 +1091,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         </div>
       )}
 
-      {/* ── コンボカウンター ─────────────────────────────────────────────── */}
+      {/*  コンボカウンター  */}
       {showCombo && comboState.count >= 2 && !state.gameOver && (
         <div
           key={`combo-${comboState.lastMergeAt}`}
@@ -1107,13 +1107,13 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               whiteSpace: "nowrap",
             }}
           >
-            {comboState.count >= 4 ? "🔥" : comboState.count >= 3 ? "✨" : "⚡"}
+            {comboState.count >= 4 ? "" : comboState.count >= 3 ? "" : ""}
             {" "}{comboState.count} COMBO!
           </div>
         </div>
       )}
 
-      {/* ── 合体アニメ演出モーダル ───────────────────────────────────────── */}
+      {/*  合体アニメ演出モーダル  */}
       {mergeAnimation && !state.gameOver && (() => {
         const kl = KANJI_LEVELS[mergeAnimation.level];
         const kn = mergeAnimation.knowledge;
@@ -1209,7 +1209,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               </p>
             )}
 
-            {/* ─── 段位表示ブロック ──────────────────────────────────── */}
+            {/*  段位表示ブロック  */}
             {(() => {
               const { currentRank, nextRank, required, progress } = getRankProgress(state.score);
               const isRankUp = state.showRankUpBanner;
@@ -1218,7 +1218,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   {isRankUp && (
                     <div className="text-center mb-2 py-1.5 rounded-lg font-black text-sm animate-pulse"
                       style={{ background: currentRank.gradient, color: currentRank.textColor }}>
-                      🎊 段位アップ！
+                       段位アップ！
                     </div>
                   )}
                   <div className="flex items-center gap-2 mb-2">
@@ -1244,20 +1244,20 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                     </>
                   ) : (
                     <div className="text-[10px] text-yellow-300 font-bold text-center mt-1">
-                      👑 最高段位達成！あなたは字玉の頂点に立った！
+                       最高段位達成！あなたは字玉の頂点に立った！
                     </div>
                   )}
                 </div>
               );
             })()}
-            {/* ─────────────────────────────────────────────────────────── */}
+            {/*  */}
 
             <p className="text-purple-300 text-xs mb-3">段位を上げて友達に自慢しよう！</p>
 
-            {/* ─── ニックネーム入力 ──────────────────────────────────── */}
+            {/*  ニックネーム入力  */}
             {!state.nicknameSaved && (
               <div className="mb-4 rounded-xl p-3 text-left" style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.3)" }}>
-                <p className="text-xs font-bold text-purple-300 mb-2 text-center">📝 ランキングに名前を登録</p>
+                <p className="text-xs font-bold text-purple-300 mb-2 text-center"> ランキングに名前を登録</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -1280,17 +1280,17 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 <p className="text-[10px] text-purple-600 mt-1.5 text-center">空欄のまま登録すると「名無し」になります</p>
               </div>
             )}
-            {/* ─────────────────────────────────────────────────────────── */}
+            {/*  */}
 
             {/* もう一回ボタンを最上部・最大サイズで表示 */}
             <button
               onClick={handleRestart}
               className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-black text-xl py-4 rounded-2xl mb-3 shadow-lg shadow-pink-900/50 active:scale-95 transition-transform"
             >
-              🀄 もう一回！
+               もう一回！
             </button>
 
-            {/* ─── デイリーランキング（本日の上位） ──────────────────────── */}
+            {/*  デイリーランキング（本日の上位）  */}
             {(() => {
               const dailyRankings = getTopDailyRankings(10);
               if (dailyRankings.length === 0) return null;
@@ -1298,7 +1298,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               return (
                 <div className="mb-3 rounded-xl overflow-hidden" style={{ border: "1px solid rgba(167,139,250,0.3)", background: "rgba(167,139,250,0.06)" }}>
                   <div className="px-3 py-2 text-xs font-black flex items-center gap-1" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>
-                    🏆 {today} デイリーランキング TOP{Math.min(10, dailyRankings.length)}
+                     {today} デイリーランキング TOP{Math.min(10, dailyRankings.length)}
                   </div>
                   {dailyRankings.map((r, i) => {
                     const isMe = state.nicknameSaved && r.score === state.score;
@@ -1311,10 +1311,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                         <span className="font-black" style={{
                           color: i === 0 ? "#fbbf24" : i === 1 ? "#9ca3af" : i === 2 ? "#d97706" : "#a78bfa",
                         }}>
-                          {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}
+                          {i === 0 ? "" : i === 1 ? "" : i === 2 ? "" : `${i + 1}.`}
                         </span>
                         <span className="font-bold truncate max-w-[80px]" style={{ color: isMe ? "#f472b6" : "#e9d5ff" }}>
-                          {isMe ? "★ " : ""}{r.nickname}
+                          {isMe ? " " : ""}{r.nickname}
                         </span>
                         <span className="font-black" style={{ color: "#fbbf24" }}>{r.score.toLocaleString()} pt</span>
                       </div>
@@ -1324,7 +1324,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               );
             })()}
 
-            {/* ─── デイリーチャレンジ結果カード ─────────────────────────── */}
+            {/*  デイリーチャレンジ結果カード  */}
             {(() => {
               const dc = getDailyChallengeStatus();
               const emojiGrid = buildDailyChallengeEmoji(dc.best, dc.target);
@@ -1335,18 +1335,18 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   border: dc.cleared ? "1px solid rgba(52,211,153,0.4)" : "1px solid rgba(167,139,250,0.2)",
                 }}>
                   <div className="text-xs font-bold mb-1" style={{ color: dc.cleared ? "#34d399" : "#a78bfa" }}>
-                    📅 {today}のデイリーチャレンジ {dc.cleared ? "✅ クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
+                     {today}のデイリーチャレンジ {dc.cleared ? " クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
                   </div>
                   <div className="text-xl tracking-widest my-1">{emojiGrid}</div>
                   <div className="text-xs text-purple-400">
                     {dc.cleared
-                      ? `🎉 ${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`
+                      ? ` ${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`
                       : `${dc.best.toLocaleString()} / ${dc.target.toLocaleString()}pt — あと少し！`}
                   </div>
                 </div>
               );
             })()}
-            {/* ─────────────────────────────────────────────────────────── */}
+            {/*  */}
 
             <button
               onClick={handleShare}
@@ -1357,7 +1357,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               </svg>
               今日の記録をXでシェアする
             </button>
-            {/* ─── 苦手漢字ミニクイズ ─────────────────────────────────── */}
+            {/*  苦手漢字ミニクイズ  */}
             {(() => {
               const { knowledge, choices, level } = getWeakQuizItem(weakQuizIdx);
               const kl = KANJI_LEVELS[level];
@@ -1365,7 +1365,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               const isAnswered = weakQuizAnswer !== null;
               return (
                 <div className="mb-3 rounded-xl p-3 text-center" style={{ background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.25)" }}>
-                  <div className="text-xs font-bold text-purple-400 mb-2">📖 合体知識クイズ — 読みを当てよう！</div>
+                  <div className="text-xs font-bold text-purple-400 mb-2"> 合体知識クイズ — 読みを当てよう！</div>
                   <div className="text-3xl font-black mb-1" style={{ color: hexColor }}>{knowledge.after}</div>
                   <div className="text-xs text-purple-500 mb-2">{knowledge.before1} + {knowledge.before2} = ?</div>
                   <div className="grid grid-cols-2 gap-1.5 mb-2">
@@ -1445,7 +1445,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             {/* Arrow overlay hint */}
             {tutorialStep === 0 && (
               <div className="flex items-center justify-center mb-4">
-                <div className="text-5xl animate-bounce text-yellow-300">👆</div>
+                <div className="text-5xl animate-bounce text-yellow-300"></div>
                 <div className="ml-3 text-purple-300 text-sm font-bold">↑ ここをタップ！</div>
               </div>
             )}
@@ -1468,7 +1468,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 className="flex-1 py-3 rounded-xl font-black text-[#1a0a2e] transition-all active:scale-95"
                 style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}
               >
-                {tutorialStep < tutorialSteps.length - 1 ? "次へ →" : "さあ遊ぼう！🀄"}
+                {tutorialStep < tutorialSteps.length - 1 ? "次へ →" : "さあ遊ぼう！"}
               </button>
             </div>
             <button onClick={() => { localStorage.setItem("jitama_tutorial_seen", "1"); setShowTutorial(false); }}
@@ -1514,10 +1514,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             <div className="relative z-10">
               <div className="text-7xl font-black mb-2" style={{ color: "#f472b6", textShadow: "0 0 30px rgba(244,114,182,0.9)" }}>字</div>
               <h2 className="text-2xl font-black mb-1 text-yellow-300">最大漢字に到達！</h2>
-              <p className="text-purple-200 text-sm mb-1 font-bold">字玉マスター達成！🀄</p>
+              <p className="text-purple-200 text-sm mb-1 font-bold">字玉マスター達成！</p>
               <p className="text-purple-400 text-xs mb-4">「一」から「字」まで全てコンプリート！</p>
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎉 字玉JITAMAで最大漢字「字」に到達しました！スコア${state.score}点！漢字合体パズルの最高到達点です🀄 → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(` 字玉JITAMAで最大漢字「字」に到達しました！スコア${state.score}点！漢字合体パズルの最高到達点です → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`)}`}
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm mb-3 transition-all active:scale-95"
                 style={{ background: "#000" }}
@@ -1525,7 +1525,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-                達成をXで自慢する 🎊
+                達成をXで自慢する 
               </a>
               <button onClick={() => setShowJiCelebration(false)}
                 className="w-full py-2 rounded-xl font-bold text-[#1a0a2e] text-sm active:scale-95"

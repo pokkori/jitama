@@ -36,13 +36,13 @@ function getDailyChallengeStorage() {
 }
 
 // 絵文字グリッド生成（Wordle風）
-const KANJI_EMOJIS = ["🀄", "🈶", "🈺", "🉐", "🈹", "🈚", "🈲", "🈸", "🉑", "🈴", "🈵", "🃏"];
+const KANJI_EMOJIS = ["", "", "", "", "", "", "", "", "", "", "", ""];
 
 function generateDailyShareText(highestLevel: number, score: number, targetLevel: number, targetScore: number): string {
   const cleared = highestLevel >= targetLevel && score >= targetScore;
   const levelEmojis = KANJI_LEVELS.slice(0, highestLevel + 1).map((_, i) => {
-    if (i < highestLevel) return "🟨";
-    return "🟩";
+    if (i < highestLevel) return "";
+    return "";
   });
   const emptySlots = Array(Math.max(0, 11 - highestLevel)).fill("⬛");
   const grid = [...levelEmojis, ...emptySlots];
@@ -52,7 +52,7 @@ function generateDailyShareText(highestLevel: number, score: number, targetLevel
   }
 
   const date = new Date().toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
-  return `字玉JITAMA デイリーチャレンジ ${date}\n${cleared ? "✅ クリア！" : "挑戦中"} 最高: ${KANJI_LEVELS[highestLevel]?.char ?? "—"}（${score.toLocaleString()}pt）\n${rows.join("\n")}\nhttps://jitama.vercel.app/daily #字玉JITAMA #デイリー漢字`;
+  return `字玉JITAMA デイリーチャレンジ ${date}\n${cleared ? " クリア！" : "挑戦中"} 最高: ${KANJI_LEVELS[highestLevel]?.char ?? "—"}（${score.toLocaleString()}pt）\n${rows.join("\n")}\nhttps://jitama.vercel.app/daily #字玉JITAMA #デイリー漢字`;
 }
 
 export default function DailyPage() {
@@ -78,7 +78,7 @@ export default function DailyPage() {
       {/* ヘッダー */}
       <div className="w-full max-w-lg mx-auto px-4 pt-6 pb-2 flex items-center gap-3">
         <Link href="/" className="text-purple-400 hover:text-purple-200 text-sm transition-colors">← トップ</Link>
-        <h1 className="text-lg font-black text-yellow-300 flex-1 text-center">📅 デイリーチャレンジ</h1>
+        <h1 className="text-lg font-black text-yellow-300 flex-1 text-center"> デイリーチャレンジ</h1>
         <Link href="/game?mode=N5" className="text-purple-400 hover:text-purple-200 text-sm transition-colors">ゲーム →</Link>
       </div>
 
@@ -86,7 +86,7 @@ export default function DailyPage() {
         {/* 今日の日付バッジ */}
         <div className="text-center mb-6">
           <span className="text-xs bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-4 py-1.5 rounded-full font-bold">
-            🗓️ {todayStr}の挑戦 — 全プレイヤー共通
+            ️ {todayStr}の挑戦 — 全プレイヤー共通
           </span>
         </div>
 
@@ -107,7 +107,7 @@ export default function DailyPage() {
           <div className={`rounded-2xl p-5 mb-6 border ${cleared ? "bg-green-900/30 border-green-500/50" : "bg-purple-900/30 border-purple-700/50"}`}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-black text-sm">
-                {cleared ? "✅ クリア達成！" : "🎯 チャレンジ中"}
+                {cleared ? " クリア達成！" : " チャレンジ中"}
               </h2>
               <span className="text-xs" style={{ color: "rgba(168,85,247,0.7)" }}>
                 最高: {KANJI_LEVELS[Math.min(storage.highestLevel, KANJI_LEVELS.length - 1)]?.char ?? "—"}
@@ -129,7 +129,7 @@ export default function DailyPage() {
               </div>
             </div>
             {cleared && (
-              <p className="text-xs text-green-400 text-center font-bold">今日のチャレンジをクリア！Xでシェアしよう🎉</p>
+              <p className="text-xs text-green-400 text-center font-bold">今日のチャレンジをクリア！Xでシェアしよう</p>
             )}
           </div>
         )}
@@ -148,7 +148,7 @@ export default function DailyPage() {
         {/* シェアカード */}
         {storage.best > 0 && (
           <div className="bg-white/5 border border-purple-800 rounded-2xl p-5 mb-6">
-            <p className="text-xs text-purple-400 font-bold mb-3 text-center">📋 Xシェア用テキスト</p>
+            <p className="text-xs text-purple-400 font-bold mb-3 text-center"> Xシェア用テキスト</p>
             <pre className="text-xs text-purple-200 whitespace-pre-wrap font-mono leading-relaxed mb-4 bg-white/5 rounded-xl p-3">
               {shareText}
             </pre>

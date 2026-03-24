@@ -9,7 +9,7 @@ export interface RankingEntry {
   level: string;
 }
 
-// ─── 擬似グローバルランキング（週次シードで変化する本物らしいCPUプレイヤー） ──
+//  擬似グローバルランキング（週次シードで変化する本物らしいCPUプレイヤー） 
 const CPU_NAMES = ["漢字の達人", "文字マスター", "合体王", "字玉の申し子", "晶まで到達", "字玉職人", "漢字フリーク", "合体連鎖師", "森の賢者", "品格の士"];
 const CPU_SCORES_BASE = [4800, 4200, 3800, 3500, 3100, 2900, 2600, 2300, 1900, 1600];
 
@@ -73,7 +73,7 @@ export function resetRanking() {
   }
 }
 
-// ─── Badge helper ─────────────────────────────────────────────────────────────
+//  Badge helper 
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1)
@@ -104,7 +104,7 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+//  Main Component 
 
 interface LocalRankingProps {
   entries: RankingEntry[];
@@ -132,7 +132,7 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
     <div className="w-full mt-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-bold text-purple-300 uppercase tracking-wide flex items-center gap-1">
-          🌐 今週のグローバルランキング TOP10
+           今週のグローバルランキング TOP10
         </p>
         <button
           onClick={onReset}
@@ -176,7 +176,7 @@ export default function LocalRanking({ entries, onReset, newRank }: LocalRanking
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-bold text-white truncate max-w-[80px]">
-                      {isSelf ? "★ " : ""}{entry.name}
+                      {isSelf ? " " : ""}{entry.name}
                     </span>
                     <span className="text-sm font-black text-yellow-300">
                       {entry.score.toLocaleString()} pt
