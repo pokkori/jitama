@@ -1271,6 +1271,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   />
                   <button
                     onClick={handleNicknameSubmit}
+                    aria-label="ニックネームをランキングに登録する"
                     className="px-4 py-2 rounded-lg font-bold text-sm text-[#1a0a2e] active:scale-95 transition-transform"
                     style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}
                   >
@@ -1285,6 +1286,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             {/* もう一回ボタンを最上部・最大サイズで表示 */}
             <button
               onClick={handleRestart}
+              aria-label="もう一回プレイする"
               className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-black text-xl py-4 rounded-2xl mb-3 shadow-lg shadow-pink-900/50 active:scale-95 transition-transform"
             >
                もう一回！
@@ -1350,6 +1352,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
             <button
               onClick={handleShare}
+              aria-label="今日の記録をXでシェアする"
               className="w-full bg-black hover:bg-gray-900 text-white font-bold py-3 rounded-xl mb-2 flex items-center justify-center gap-2 transition-colors"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -1382,6 +1385,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                         <button key={choice}
                           onClick={() => !isAnswered && setWeakQuizAnswer(choice)}
                           disabled={isAnswered}
+                          aria-label={`読みの選択肢「${choice}」を選ぶ`}
                           className="py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
                           style={{ background: bg, border: `1px solid ${border}`, color }}>
                           {choice}
@@ -1397,6 +1401,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   {isAnswered && (
                     <button
                       onClick={() => { setWeakQuizIdx(i => i + 1); setWeakQuizAnswer(null); }}
+                      aria-label="次の問題へ進む"
                       className="text-xs px-4 py-1.5 rounded-full font-bold"
                       style={{ background: "rgba(167,139,250,0.2)", color: "#c084fc", border: "1px solid rgba(167,139,250,0.4)" }}>
                       次の問題 →
@@ -1452,6 +1457,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             <div className="flex gap-3">
               {tutorialStep > 0 && (
                 <button onClick={() => setTutorialStep(s => s - 1)}
+                  aria-label="チュートリアルの前のステップに戻る"
                   className="flex-1 py-2 rounded-xl text-sm text-purple-400 border border-purple-700">
                   ← 戻る
                 </button>
@@ -1465,6 +1471,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                     setShowTutorial(false);
                   }
                 }}
+                aria-label={tutorialStep < tutorialSteps.length - 1 ? "チュートリアルの次のステップへ進む" : "チュートリアルを完了してゲームを始める"}
                 className="flex-1 py-3 rounded-xl font-black text-[#1a0a2e] transition-all active:scale-95"
                 style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}
               >
@@ -1472,6 +1479,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               </button>
             </div>
             <button onClick={() => { localStorage.setItem("jitama_tutorial_seen", "1"); setShowTutorial(false); }}
+              aria-label="チュートリアルをスキップする"
               className="w-full mt-2 text-xs text-purple-600 hover:text-purple-400">
               スキップ
             </button>
@@ -1528,6 +1536,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 達成をXで自慢する 
               </a>
               <button onClick={() => setShowJiCelebration(false)}
+                aria-label="お祝い画面を閉じてゲームを続ける"
                 className="w-full py-2 rounded-xl font-bold text-[#1a0a2e] text-sm active:scale-95"
                 style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)" }}>
                 ゲームを続ける →
