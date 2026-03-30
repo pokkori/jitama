@@ -160,12 +160,12 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: "", title: "タップで落とす", desc: "好きな位置をタップして漢字を落とす" },
-            { icon: "", title: "同じ字が合体", desc: "同じ漢字が触れると合体して進化する" },
-            { icon: "", title: "高得点を狙え", desc: "大きい漢字ほどハイスコア。「字」を出せ！" },
+            { iconEl: <svg viewBox="0 0 32 32" width={28} height={28}><circle cx="16" cy="16" r="12" fill="none" stroke="#FBBF24" strokeWidth="2" /><circle cx="16" cy="16" r="3" fill="#FBBF24" /><path d="M16 6v4M16 22v4" stroke="#FBBF24" strokeWidth="1.5" /></svg>, title: "タップで落とす", desc: "好きな位置をタップして漢字を落とす" },
+            { iconEl: <svg viewBox="0 0 32 32" width={28} height={28}><circle cx="10" cy="16" r="7" fill="#FBBF24" opacity="0.6" /><circle cx="22" cy="16" r="7" fill="#EC4899" opacity="0.6" /><path d="M14 16h4" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>, title: "同じ字が合体", desc: "同じ漢字が触れると合体して進化する" },
+            { iconEl: <svg viewBox="0 0 32 32" width={28} height={28}><polygon points="16,2 20,12 31,12 22,19 25,30 16,23 7,30 10,19 1,12 12,12" fill="#FBBF24" /></svg>, title: "高得点を狙え", desc: "大きい漢字ほどハイスコア。「字」を出せ！" },
           ].map((s) => (
             <div key={s.title} className="rounded-xl p-4 text-center shadow-lg" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px' }}>
-              <div className="text-3xl mb-2">{s.icon}</div>
+              <div className="mb-2 flex justify-center">{s.iconEl}</div>
               <p className="font-bold text-sm mb-1">{s.title}</p>
               <p className="text-xs text-purple-300">{s.desc}</p>
             </div>
@@ -296,12 +296,12 @@ export default function LandingPage() {
         <h2 className="text-sm font-bold text-purple-400 mb-4 text-center"> 字玉をもっと楽しむ3選</h2>
         <ol className="space-y-3">
           {[
-            { icon: "", title: "JLPT N1漢字を全制覇", desc: "最上位の漢字「覇」まで合体できればN1レベル！漢字の学習にも使えます。" },
-            { icon: "", title: "友達と最高スコアを競う", desc: "ゲームオーバー後にXでスコアをシェアして、誰が一番合体できるか競争しよう。" },
-            { icon: "", title: "毎日5分の脳トレとして", desc: "隙間時間の漢字パズル。毎日プレイすると漢字力・空間認識力が鍛えられます。" },
+            { iconEl: <svg viewBox="0 0 24 24" width={24} height={24}><circle cx="12" cy="12" r="10" fill="#7C3AED" /><path d="M8 12l3 3 5-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>, title: "JLPT N1漢字を全制覇", desc: "最上位の漢字「覇」まで合体できればN1レベル！漢字の学習にも使えます。" },
+            { iconEl: <svg viewBox="0 0 24 24" width={24} height={24}><circle cx="8" cy="12" r="5" fill="none" stroke="#EC4899" strokeWidth="2" /><circle cx="16" cy="12" r="5" fill="none" stroke="#EC4899" strokeWidth="2" /></svg>, title: "友達と最高スコアを競う", desc: "ゲームオーバー後にXでスコアをシェアして、誰が一番合体できるか競争しよう。" },
+            { iconEl: <svg viewBox="0 0 24 24" width={24} height={24}><circle cx="12" cy="12" r="10" fill="none" stroke="#FBBF24" strokeWidth="2" /><path d="M12 6v6l4 2" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" /></svg>, title: "毎日5分の脳トレとして", desc: "隙間時間の漢字パズル。毎日プレイすると漢字力・空間認識力が鍛えられます。" },
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-3 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px' }}>
-              <span className="text-2xl leading-none">{item.icon}</span>
+              <span className="leading-none flex-shrink-0">{item.iconEl}</span>
               <div>
                 <div className="text-sm font-bold text-purple-200">{i + 1}. {item.title}</div>
                 <div className="text-xs text-purple-400 mt-0.5">{item.desc}</div>

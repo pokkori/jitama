@@ -1191,7 +1191,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       {/* Game Over Overlay */}
       {state.gameOver && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 overflow-y-auto py-4">
-          <div className="bg-[#1a0a2e]/95 border border-purple-500 rounded-2xl p-6 text-center w-full max-w-sm mx-4">
+          <div className="rounded-2xl p-6 text-center w-full max-w-sm mx-4 backdrop-blur-md" style={{ background: "rgba(26,10,46,0.92)", border: "1px solid rgba(167,139,250,0.4)", boxShadow: "0 8px 32px rgba(167,139,250,0.15)" }}>
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
             <p className="text-yellow-300 text-3xl font-black mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (

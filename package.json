@@ -23,7 +23,9 @@
     "next": "^16.1.6",
     "phaser": "^3.87.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-svg": "^15.15.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
