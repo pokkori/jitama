@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
 import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useKanjiBGM } from "@/hooks/useKanjiBGM";
 import LocalRanking, {
   type RankingEntry,
   loadRanking,
@@ -11,6 +12,9 @@ import LocalRanking, {
   resetRanking,
 } from "@/components/LocalRanking";
 import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-utils";
+import OrbBackground from "@/components/OrbBackground";
+import KanjiMascot, { type MascotPose } from "@/components/KanjiMascot";
+import MergeParticle from "@/components/MergeParticle";
 
 //  漢字合体 成り立ちデータ 
 interface MergeKnowledge {
@@ -256,7 +260,7 @@ function createGameScene(
       this.dangerLine.lineBetween(0, this.DANGER_Y, this.W, this.DANGER_Y);
 
       // "DANGER" label
-      this.add.text(4, this.DANGER_Y - 18, " ここまでいったらゲームオーバー", {
+      this.add.text(4, this.DANGER_Y - 18, "ここまでいったらゲームオーバー", {
         fontSize: "10px",
         color: "#ff6666",
         alpha: 0.8,
@@ -609,6 +613,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const { playMerge, playGameOver, playHighScore } = useGameSounds();
+  const { start: bgmStart, stop: bgmStop, setMuted: bgmSetMuted } = useKanjiBGM();
+  const [bgmMuted, setBgmMuted] = useState(false);
+  const [mascotPose, setMascotPose] = useState<MascotPose>("idle");
+  const [mergeLevel, setMergeLevel] = useState<number | null>(null);
+  const bgmStartedRef = useRef(false);
   const hintIdRef = useRef(0);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -660,6 +669,23 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
     }
     // デイリーチャレンジ初期化
     setDailyChallenge(getDailyChallengeStatus());
+
+    // BGM: 初回ユーザーインタラクションで開始（autoplay policy 対応）
+    const startBgmOnce = () => {
+      if (!bgmStartedRef.current) {
+        bgmStartedRef.current = true;
+        bgmStart();
+      }
+      document.removeEventListener("click", startBgmOnce);
+      document.removeEventListener("touchstart", startBgmOnce);
+    };
+    document.addEventListener("click", startBgmOnce);
+    document.addEventListener("touchstart", startBgmOnce);
+    return () => {
+      document.removeEventListener("click", startBgmOnce);
+      document.removeEventListener("touchstart", startBgmOnce);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -709,9 +735,18 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             nicknameSaved: false,
           }));
           onGameOverExternal?.(score);
+          bgmStop();
+          setMascotPose("wrong");
         },
         (level) => {
           playMerge(level);
+
+          // パーティクルバースト
+          setMergeLevel(level);
+
+          // マスコット: correct ポーズ → 1秒後に idle
+          setMascotPose("correct");
+          setTimeout(() => setMascotPose("idle"), 1000);
 
           // 最後に合体した漢字を記録（シェアテキスト用）
           const mergedKl = KANJI_LEVELS[level];
@@ -981,7 +1016,13 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-[#1a0a2e] select-none">
+    <div className="flex flex-col items-center min-h-screen select-none" style={{ background: "#0f0a1e", position: "relative" }}>
+
+      {/* OrbBackground: fixed, z-index:0 */}
+      <OrbBackground />
+
+      {/* MergeParticle */}
+      <MergeParticle triggerLevel={mergeLevel} />
 
       {/* CSS: 合体アニメ・コンボ用 */}
       <style>{`
@@ -1018,7 +1059,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
           <div className="px-6 py-3 rounded-2xl font-black text-white text-lg shadow-2xl animate-bounce"
             style={{ background: "linear-gradient(135deg, #f59e0b, #f472b6)", boxShadow: "0 0 30px rgba(245,158,11,0.7)" }}>
-             {streakState.streak}日連続プレイ！
+            {streakState.streak}日連続プレイ！
           </div>
         </div>
       )}
@@ -1027,7 +1068,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       <div className="w-full max-w-[400px] px-3 pt-2">
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-[10px] text-purple-400 font-bold">
-             今日のチャレンジ {dailyChallenge.cleared ? " クリア！" : `目標: ${dailyChallenge.target.toLocaleString()}pt`}
+            今日のチャレンジ {dailyChallenge.cleared ? "クリア！" : `目標: ${dailyChallenge.target.toLocaleString()}pt`}
           </span>
           <span className="text-[10px] text-yellow-400">{dailyChallengeProgress}%</span>
         </div>
@@ -1048,11 +1089,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           <div className="text-xs text-purple-300">字玉 JITAMA</div>
           {jlptMode !== "all" && (
             <div className="text-[10px] font-bold text-emerald-400">
-              {currentModeInfo.emoji} {currentModeInfo.label} MODE
+              {currentModeInfo.label} MODE
             </div>
           )}
           {streakState.streak >= 2 && (
-            <div className="text-[10px] font-bold text-amber-400"> {streakState.streak}日連続</div>
+            <div className="text-[10px] font-bold text-amber-400">{streakState.streak}日連続</div>
           )}
         </div>
         <div className="flex gap-3">
@@ -1077,11 +1118,55 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         </div>
       </div>
 
+      {/* KanjiMascot + BGMミュートボタン */}
+      <div className="w-full max-w-[400px] px-3 flex items-center justify-between mb-1" style={{ position: "relative", zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "flex-end" }}>
+          <KanjiMascot pose={mascotPose} size={72} />
+        </div>
+        <button
+          onClick={() => {
+            const next = !bgmMuted;
+            setBgmMuted(next);
+            bgmSetMuted(next);
+          }}
+          style={{
+            minHeight: 44,
+            minWidth: 44,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 12,
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.07)",
+            backdropFilter: "blur(8px)",
+            cursor: "pointer",
+            padding: "0 12px",
+          }}
+          aria-label={bgmMuted ? "BGMをオンにする" : "BGMをオフにする"}
+        >
+          {/* 音符SVGアイコン */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            {bgmMuted ? (
+              <>
+                <path d="M9 9v6h4l5 5V4l-5 5H9z" fill="rgba(255,255,255,0.3)" />
+                <line x1="3" y1="3" x2="21" y2="21" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+              </>
+            ) : (
+              <>
+                <path d="M9 9v6h4l5 5V4l-5 5H9z" fill="#d97706" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" stroke="#d97706" strokeWidth="2" strokeLinecap="round" fill="none" />
+                <path d="M18 6a8 8 0 0 1 0 12" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+              </>
+            )}
+          </svg>
+        </button>
+      </div>
+
       {/* Game Canvas */}
       <div
         ref={containerRef}
         className="w-[400px] max-w-full"
-        style={{ height: 620, position: "relative" }}
+        style={{ height: 620, position: "relative", zIndex: 5 }}
       />
 
       {/* JLPT進捗バー */}
@@ -1191,7 +1276,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       {/* Game Over Overlay */}
       {state.gameOver && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 overflow-y-auto py-4">
-          <div className="rounded-2xl p-6 text-center w-full max-w-sm mx-4 backdrop-blur-md" style={{ background: "rgba(26,10,46,0.92)", border: "1px solid rgba(167,139,250,0.4)", boxShadow: "0 8px 32px rgba(167,139,250,0.15)" }}>
+          <div className="rounded-2xl p-6 text-center w-full max-w-sm mx-4 backdrop-blur-md" style={{ background: "rgba(15,10,30,0.95)", border: "1px solid rgba(167,139,250,0.4)", boxShadow: "0 8px 40px rgba(167,139,250,0.2)", backdropFilter: "blur(16px)" }}>
+            {/* 漢博士（wrong ポーズ） */}
+            <div className="flex justify-center mb-2">
+              <KanjiMascot pose="wrong" size={80} />
+            </div>
             <p className="text-4xl font-bold text-white mb-1">GAME OVER</p>
             <p className="text-yellow-300 text-3xl font-black mb-1">{state.score.toLocaleString()} pt</p>
             {state.score >= state.highScore && state.score > 0 && (
@@ -1218,11 +1307,11 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   {isRankUp && (
                     <div className="text-center mb-2 py-1.5 rounded-lg font-black text-sm animate-pulse"
                       style={{ background: currentRank.gradient, color: currentRank.textColor }}>
-                       段位アップ！
+                      段位アップ！
                     </div>
                   )}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">{currentRank.icon}</span>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: currentRank.gradient, flexShrink: 0 }} />
                     <div>
                       <div className="text-xs text-purple-400">現在の段位</div>
                       <div className="text-sm font-black" style={{ color: currentRank.textColor }}>
@@ -1234,7 +1323,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   {nextRank ? (
                     <>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] text-purple-500">次の段位: {nextRank.icon} {nextRank.label}</span>
+                        <span className="text-[10px] text-purple-500">次の段位: {nextRank.label}</span>
                         <span className="text-[10px] text-purple-400">あと {required.toLocaleString()} pt</span>
                       </div>
                       <div className="w-full h-1.5 rounded-full" style={{ background: "rgba(167,139,250,0.2)" }}>
@@ -1244,7 +1333,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                     </>
                   ) : (
                     <div className="text-[10px] text-yellow-300 font-bold text-center mt-1">
-                       最高段位達成！あなたは字玉の頂点に立った！
+                      最高段位達成！あなたは字玉の頂点に立った！
                     </div>
                   )}
                 </div>
@@ -1257,7 +1346,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             {/*  ニックネーム入力  */}
             {!state.nicknameSaved && (
               <div className="mb-4 rounded-xl p-3 text-left" style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.3)" }}>
-                <p className="text-xs font-bold text-purple-300 mb-2 text-center"> ランキングに名前を登録</p>
+                <p className="text-xs font-bold text-purple-300 mb-2 text-center">ランキングに名前を登録</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -1289,7 +1378,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               aria-label="もう一回プレイする"
               className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 text-[#1a0a2e] font-black text-xl py-4 rounded-2xl mb-3 shadow-lg shadow-pink-900/50 active:scale-95 transition-transform"
             >
-               もう一回！
+              もう一回！
             </button>
 
             {/*  デイリーランキング（本日の上位）  */}
@@ -1300,7 +1389,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               return (
                 <div className="mb-3 rounded-xl overflow-hidden" style={{ border: "1px solid rgba(167,139,250,0.3)", background: "rgba(167,139,250,0.06)" }}>
                   <div className="px-3 py-2 text-xs font-black flex items-center gap-1" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>
-                     {today} デイリーランキング TOP{Math.min(10, dailyRankings.length)}
+                    {today} デイリーランキング TOP{Math.min(10, dailyRankings.length)}
                   </div>
                   {dailyRankings.map((r, i) => {
                     const isMe = state.nicknameSaved && r.score === state.score;
@@ -1313,10 +1402,10 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                         <span className="font-black" style={{
                           color: i === 0 ? "#fbbf24" : i === 1 ? "#9ca3af" : i === 2 ? "#d97706" : "#a78bfa",
                         }}>
-                          {i === 0 ? "" : i === 1 ? "" : i === 2 ? "" : `${i + 1}.`}
+                          {i === 0 ? "1." : i === 1 ? "2." : i === 2 ? "3." : `${i + 1}.`}
                         </span>
                         <span className="font-bold truncate max-w-[80px]" style={{ color: isMe ? "#f472b6" : "#e9d5ff" }}>
-                          {isMe ? " " : ""}{r.nickname}
+                          {r.nickname}
                         </span>
                         <span className="font-black" style={{ color: "#fbbf24" }}>{r.score.toLocaleString()} pt</span>
                       </div>
@@ -1337,12 +1426,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   border: dc.cleared ? "1px solid rgba(52,211,153,0.4)" : "1px solid rgba(167,139,250,0.2)",
                 }}>
                   <div className="text-xs font-bold mb-1" style={{ color: dc.cleared ? "#34d399" : "#a78bfa" }}>
-                     {today}のデイリーチャレンジ {dc.cleared ? " クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
+                    {today}のデイリーチャレンジ {dc.cleared ? "クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
                   </div>
                   <div className="text-xl tracking-widest my-1">{emojiGrid}</div>
                   <div className="text-xs text-purple-400">
                     {dc.cleared
-                      ? ` ${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`
+                      ? `${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`
                       : `${dc.best.toLocaleString()} / ${dc.target.toLocaleString()}pt — あと少し！`}
                   </div>
                 </div>
@@ -1368,7 +1457,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               const isAnswered = weakQuizAnswer !== null;
               return (
                 <div className="mb-3 rounded-xl p-3 text-center" style={{ background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.25)" }}>
-                  <div className="text-xs font-bold text-purple-400 mb-2"> 合体知識クイズ — 読みを当てよう！</div>
+                  <div className="text-xs font-bold text-purple-400 mb-2">合体知識クイズ — 読みを当てよう！</div>
                   <div className="text-3xl font-black mb-1" style={{ color: hexColor }}>{knowledge.after}</div>
                   <div className="text-xs text-purple-500 mb-2">{knowledge.before1} + {knowledge.before2} = ?</div>
                   <div className="grid grid-cols-2 gap-1.5 mb-2">
@@ -1434,7 +1523,28 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           style={{ backdropFilter: "blur(4px)" }}>
           <div className="w-full max-w-sm bg-[#1a0a2e] border border-purple-500 rounded-2xl p-6 shadow-2xl">
             <div className="text-center mb-4">
-              <div className="text-4xl mb-2">{tutorialSteps[tutorialStep].icon}</div>
+              <div className="flex justify-center mb-2">
+                <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+                  {tutorialStep === 0 && (
+                    <circle cx="24" cy="24" r="20" fill="#d97706" opacity="0.9">
+                      <animate attributeName="r" values="18;22;18" dur="1.5s" repeatCount="indefinite" />
+                    </circle>
+                  )}
+                  {tutorialStep === 1 && (
+                    <>
+                      <circle cx="16" cy="28" r="10" fill="#dc2626" />
+                      <circle cx="32" cy="28" r="10" fill="#7c3aed" />
+                      <circle cx="24" cy="18" r="12" fill="#d97706" />
+                    </>
+                  )}
+                  {tutorialStep === 2 && (
+                    <>
+                      <rect x="8" y="12" width="32" height="24" rx="6" fill="#7c3aed" />
+                      <text x="24" y="30" textAnchor="middle" fontSize="16" fontWeight="bold" fill="white">字</text>
+                    </>
+                  )}
+                </svg>
+              </div>
               <h2 className="text-xl font-black text-yellow-300 mb-1">
                 {tutorialSteps[tutorialStep].title}
               </h2>
@@ -1450,7 +1560,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
             {/* Arrow overlay hint */}
             {tutorialStep === 0 && (
               <div className="flex items-center justify-center mb-4">
-                <div className="text-5xl animate-bounce text-yellow-300"></div>
+                <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" style={{ animation: "bounce 1s ease-in-out infinite" }}>
+                  <path d="M18 4 L28 20 L22 20 L22 32 L14 32 L14 20 L8 20 Z" fill="#fbbf24" />
+                </svg>
                 <div className="ml-3 text-purple-300 text-sm font-bold">↑ ここをタップ！</div>
               </div>
             )}
@@ -1525,7 +1637,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               <p className="text-purple-200 text-sm mb-1 font-bold">字玉マスター達成！</p>
               <p className="text-purple-400 text-xs mb-4">「一」から「字」まで全てコンプリート！</p>
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(` 字玉JITAMAで最大漢字「字」に到達しました！スコア${state.score}点！漢字合体パズルの最高到達点です → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`字玉JITAMAで最大漢字「字」に到達しました！スコア${state.score}点！漢字合体パズルの最高到達点です → https://jitama.vercel.app #字玉 #JITAMA #漢字ゲーム`)}`}
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm mb-3 transition-all active:scale-95"
                 style={{ background: "#000" }}
@@ -1533,7 +1645,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-                達成をXで自慢する 
+                達成をXで自慢する
               </a>
               <button onClick={() => setShowJiCelebration(false)}
                 aria-label="お祝い画面を閉じてゲームを続ける"
