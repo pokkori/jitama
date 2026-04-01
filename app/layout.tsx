@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const SITE_URL = "https://jitama.vercel.app";
@@ -74,7 +75,7 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
     languages: { "en": `${SITE_URL}/en` },
   },
-  icons: { icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F004;</text></svg>" },
+  icons: { icon: "/favicon.ico" },
   openGraph: {
     title: TITLE,
     description: "部首を落として合体！漢字が進化する物理パズル。スイカゲーム式で誰でも遊べる。",
@@ -112,6 +113,7 @@ export default function RootLayout({
       <body>
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
