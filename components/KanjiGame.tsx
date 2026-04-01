@@ -358,34 +358,55 @@ function createGameScene(
 
       const gfx = this.add.graphics();
 
-      // Shadow
+      // Drop shadow
       if (hasShadow) {
-        gfx.fillStyle(0x000000, 0.2);
-        gfx.fillCircle(3, 3, r);
+        gfx.fillStyle(0x000000, 0.25);
+        gfx.fillCircle(4, 4, r);
       }
 
-      // Outer ring
-      gfx.fillStyle(0xffffff, 0.15);
+      // Glow ring — level-specific color, intensity scales with level
+      const glowRadii = [r + 6, r + 4, r + 2];
+      const glowAlphas = [kl.glowAlpha * 0.2, kl.glowAlpha * 0.4, kl.glowAlpha * 0.6];
+      for (let i = 0; i < 3; i++) {
+        gfx.fillStyle(kl.glowColor, glowAlphas[i]);
+        gfx.fillCircle(0, 0, glowRadii[i]);
+      }
+
+      // Outer rim (border highlight)
+      gfx.fillStyle(0xffffff, 0.18);
       gfx.fillCircle(0, 0, r);
 
-      // Main fill
+      // Inner gradient — outer color
       gfx.fillStyle(kl.color, 1);
       gfx.fillCircle(0, 0, r - 2);
 
+      // Inner gradient — darker center tone for depth
+      gfx.fillStyle(kl.colorInner, 0.45);
+      gfx.fillCircle(r * 0.15, r * 0.15, r * 0.7);
+
       // Glossy highlight
-      gfx.fillStyle(0xffffff, 0.3);
-      gfx.fillEllipse(-r * 0.2, -r * 0.3, r * 0.5, r * 0.3);
+      gfx.fillStyle(0xffffff, 0.28);
+      gfx.fillEllipse(-r * 0.18, -r * 0.28, r * 0.52, r * 0.28);
 
       // Kanji text
       const txt = this.add.text(0, 0, kl.char, {
         fontSize: `${Math.floor(r * 0.85)}px`,
         fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", serif',
-        color: "#1a0a2e",
+        color: kl.textColor,
         fontStyle: "bold",
-        stroke: "#ffffff",
-        strokeThickness: 2,
+        stroke: "#000000",
+        strokeThickness: level >= 9 ? 3 : 2,
       } as Phaser.Types.GameObjects.Text.TextStyle);
       txt.setOrigin(0.5, 0.5);
+
+      // Level 11 (最高位) — extra gold pulse ring
+      if (level === 11) {
+        const shine = this.add.graphics();
+        shine.lineStyle(2, 0xFFD93D, 0.7);
+        shine.strokeCircle(0, 0, r - 1);
+        const container = this.add.container(x, y, [gfx, shine, txt]);
+        return container;
+      }
 
       const container = this.add.container(x, y, [gfx, txt]);
       return container;
@@ -1108,9 +1129,19 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           </div>
           <div className="text-center">
             <div className="text-[10px] text-purple-400">NEXT</div>
+            {/* レベル別タイル色グラデーションカード */}
             <div
-              className="text-xl font-bold"
-              style={{ color: `#${nextKanji.color.toString(16).padStart(6, "0")}` }}
+              className="text-xl font-bold flex items-center justify-center rounded-lg"
+              style={{
+                width: 40,
+                height: 40,
+                margin: "2px auto",
+                background: `radial-gradient(circle at 35% 30%, #${nextKanji.colorInner.toString(16).padStart(6,"0")}, #${nextKanji.color.toString(16).padStart(6,"0")})`,
+                color: nextKanji.textColor,
+                boxShadow: `0 0 ${6 + nextKanji.level * 1.5}px ${Math.round(nextKanji.glowAlpha * 8)}px #${nextKanji.glowColor.toString(16).padStart(6,"0")}`,
+                border: nextKanji.level >= 9 ? "1px solid #FFD93D" : "1px solid rgba(255,255,255,0.15)",
+                transition: "all 0.3s ease",
+              }}
             >
               {nextKanji.char}
             </div>
@@ -1667,19 +1698,26 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
         </div>
       )}
 
-      {/* Legend */}
+      {/* Legend: レベル別タイル色グラデーションチャート */}
       <div className="w-full max-w-[400px] px-3 py-2">
         <div className="text-[10px] text-purple-400 mb-1">合体チャート（小→大）</div>
         <div className="flex gap-1 flex-wrap">
           {KANJI_LEVELS.map((kl) => (
             <div key={kl.level} className="text-center">
               <div
-                className="text-xs font-bold"
-                style={{ color: `#${kl.color.toString(16).padStart(6, "0")}` }}
+                className="text-xs font-bold flex items-center justify-center rounded-md"
+                style={{
+                  width: 26,
+                  height: 26,
+                  background: `radial-gradient(circle at 35% 30%, #${kl.colorInner.toString(16).padStart(6,"0")}, #${kl.color.toString(16).padStart(6,"0")})`,
+                  color: kl.textColor,
+                  boxShadow: `0 0 ${4 + kl.level}px 1px #${kl.glowColor.toString(16).padStart(6,"0")}`,
+                  border: kl.level >= 9 ? "1px solid #FFD93D" : "1px solid rgba(255,255,255,0.1)",
+                }}
               >
                 {kl.char}
               </div>
-              <div className="text-[8px] text-purple-600">{kl.jlpt}</div>
+              <div className="text-[7px] text-purple-600 mt-0.5">{kl.jlpt}</div>
             </div>
           ))}
         </div>
