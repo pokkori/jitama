@@ -38,7 +38,9 @@ export default function LandingPage() {
         <div className="mb-6 bg-white/10 backdrop-blur-sm bg-gradient-to-r from-yellow-500/20 to-pink-500/20 border border-white/20 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-xl"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-orange-400" aria-hidden="true">
+                <path d="M12 2C12 2 7 8 7 13a5 5 0 0010 0c0-5-5-11-5-11zm0 16a3 3 0 01-3-3c0-2 2-5 3-7 1 2 3 5 3 7a3 3 0 01-3 3z"/>
+              </svg>
               <span className="text-sm font-bold text-yellow-300">今日のデイリーチャレンジ</span>
             </div>
             <span className="text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-full font-bold">毎日更新</span>
@@ -98,6 +100,10 @@ export default function LandingPage() {
             style={{ background: "rgba(234,179,8,0.15)", color: "#fde047", border: "1px solid rgba(234,179,8,0.4)" }}
             aria-label="今日のデイリーチャレンジページを開く"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5" aria-hidden="true">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
              デイリーチャレンジ
           </Link>
           <Link
@@ -106,6 +112,12 @@ export default function LandingPage() {
             style={{ background: "rgba(168,85,247,0.15)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.4)" }}
             aria-label="N5フリーモードでゲームを開始する"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
              フリーモード
           </Link>
         </div>
@@ -415,7 +427,7 @@ export default function LandingPage() {
           <PremiumButton />
           <div className="flex items-center justify-center gap-3 mt-3 text-xs">
             <span className="text-purple-400"> いつでも解約可</span>
-            <span className="text-green-400 font-bold">️ 30日返金保証</span>
+            <span className="text-green-400 font-bold">30日返金保証</span>
           </div>
         </div>
       </section>
