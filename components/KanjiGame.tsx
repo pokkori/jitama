@@ -16,6 +16,7 @@ import OrbBackground from "@/components/OrbBackground";
 import KanjiMascot, { type MascotPose } from "@/components/KanjiMascot";
 import MergeParticle from "@/components/MergeParticle";
 import ShareScoreCardButton from "@/components/ShareScoreCard";
+import { ScorePopLayer, type ScorePopItem } from "@/components/ScorePop";
 
 //  漢字合体 成り立ちデータ 
 interface MergeKnowledge {
@@ -657,6 +658,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const [comboState, setComboState] = useState<ComboState>({ count: 0, lastMergeAt: 0 });
   const [showCombo, setShowCombo] = useState(false);
   const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ScorePop
+  const [scorePopItems, setScorePopItems] = useState<ScorePopItem[]>([]);
+  const scorePopIdRef = useRef(0);
   // 最後に合体した漢字（シェアテキスト用）
   const lastMergedCharRef = useRef<string>("");
   // 最高到達レベル（Wordleグリッド用）
@@ -776,11 +780,24 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           // 最高到達レベルを更新
           if (level > highestLevelRef.current) highestLevelRef.current = level;
 
-          //  コンボカウンター 
+          //  コンボカウンター
           const now = Date.now();
           setComboState((prev) => {
             const isCombo = now - prev.lastMergeAt < 3000;
             const newCount = isCombo ? prev.count + 1 : 1;
+            // ScorePop発火（setComboState内で最新comboを取得）
+            const pts = KANJI_LEVELS[level]?.score ?? level * 10;
+            const popId = ++scorePopIdRef.current;
+            setScorePopItems((sp) => [
+              ...sp,
+              {
+                id: popId,
+                value: pts,
+                combo: newCount,
+                x: window.innerWidth / 2,
+                y: window.innerHeight * 0.4,
+              },
+            ]);
             return { count: newCount, lastMergeAt: now };
           });
           setShowCombo(true);
@@ -1039,6 +1056,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
 
   return (
     <div className="flex flex-col items-center min-h-screen select-none" style={{ background: "#0f0a1e", position: "relative" }}>
+
+      {/* ScorePopLayer: fixed overlay */}
+      <ScorePopLayer
+        items={scorePopItems}
+        onRemove={id => setScorePopItems(prev => prev.filter(p => p.id !== id))}
+      />
 
       {/* OrbBackground: fixed, z-index:0 */}
       <OrbBackground />
