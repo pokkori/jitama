@@ -17,6 +17,8 @@ import KanjiMascot, { type MascotPose } from "@/components/KanjiMascot";
 import MergeParticle from "@/components/MergeParticle";
 import ShareScoreCardButton from "@/components/ShareScoreCard";
 import { ScorePopLayer, type ScorePopItem } from "@/components/ScorePop";
+import { LottiePlayer } from "@/components/LottiePlayer";
+import { StreakFlame } from "@/components/StreakFlame";
 
 //  漢字合体 成り立ちデータ 
 interface MergeKnowledge {
@@ -667,6 +669,9 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
   const highestLevelRef = useRef<number>(0);
   // シェアテキストコピー済みフラグ
   const [shareTextCopied, setShareTextCopied] = useState(false);
+  // Lottieキャラ感情反応
+  type LottieState = 'idle' | 'happy' | 'sad' | 'fever';
+  const [lottieState, setLottieState] = useState<LottieState>('idle');
   const [state, setState] = useState<GameState>({
     score: 0,
     nextLevel: 0,
@@ -773,6 +778,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           // マスコット: correct ポーズ → 1秒後に idle
           setMascotPose("correct");
           setTimeout(() => setMascotPose("idle"), 1000);
+          // Lottieキャラ感情反応: レベル9以上→fever、それ以外→happy
+          if (level >= 9) {
+            setLottieState('fever');
+          } else {
+            setLottieState('happy');
+          }
 
           // 最後に合体した漢字を記録（シェアテキスト用）
           const mergedKl = KANJI_LEVELS[level];
@@ -1069,6 +1080,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       {/* MergeParticle */}
       <MergeParticle triggerLevel={mergeLevel} />
 
+      {/* Lottieキャラ感情反応アニメーション */}
+      <LottiePlayer
+        state={lottieState}
+        onComplete={() => setLottieState('idle')}
+      />
+
       {/* CSS: 合体アニメ・コンボ用 */}
       <style>{`
         @keyframes merge-pop {
@@ -1137,8 +1154,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               {currentModeInfo.label} MODE
             </div>
           )}
-          {streakState.streak >= 2 && (
-            <div className="text-[10px] font-bold text-amber-400">{streakState.streak}日連続</div>
+          {streakState.streak >= 1 && (
+            <StreakFlame streak={streakState.streak} />
           )}
         </div>
         <div className="flex gap-3">
