@@ -20,7 +20,12 @@ export default function Image() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 80, marginBottom: 8 }}></div>
+        <div style={{ marginBottom: 8 }}>
+          <svg viewBox="0 0 80 80" width={80} height={80}>
+            <rect x="10" y="10" width="60" height="60" rx="8" fill="rgba(167,139,250,0.2)" stroke="rgba(167,139,250,0.5)" strokeWidth="2" />
+            <text x="40" y="58" textAnchor="middle" fontSize="48" fontWeight="700" fill="#fbbf24" fontFamily="sans-serif">字</text>
+          </svg>
+        </div>
         <div style={{ fontSize: 64, fontWeight: 700, color: "#fbbf24", marginBottom: 8, textAlign: "center" }}>
           字玉 JITAMA
         </div>

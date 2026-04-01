@@ -82,13 +82,13 @@ export const metadata: Metadata = {
     siteName: "字玉 JITAMA",
     locale: "ja_JP",
     type: "website",
-    images: [{ url: "/images/hero.png", width: 640, height: 360, alt: "字玉 JITAMA ゲーム画面" }],
+    images: [{ url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630, alt: "字玉 JITAMA — 漢字マージパズル | 部首を落として合体！" }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: "部首を落として合体！漢字が進化する物理パズル。",
-    images: ["/images/hero.png"],
+    images: [`${SITE_URL}/opengraph-image`],
   },
   metadataBase: new URL(SITE_URL),
 };
