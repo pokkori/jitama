@@ -14,6 +14,7 @@ import LocalRanking, {
 import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-utils";
 import OrbBackground from "@/components/OrbBackground";
 import KanjiMascot, { type MascotPose } from "@/components/KanjiMascot";
+import CharacterAvatar, { type Emotion as AvatarEmotion } from "@/components/CharacterAvatar";
 import MergeParticle from "@/components/MergeParticle";
 import ShareScoreCardButton from "@/components/ShareScoreCard";
 import { ScorePopLayer, type ScorePopItem } from "@/components/ScorePop";
@@ -1148,6 +1149,12 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       {/* Header */}
       <div className="w-full max-w-[400px] px-3 pt-3 pb-1 flex items-center justify-between">
         <div className="flex flex-col gap-0.5">
+          {/* CharacterAvatar: 合体成功時happy・通常normal */}
+          <CharacterAvatar
+            emotion={(mascotPose === "correct" || mascotPose === "levelup" ? "happy" : "normal") as AvatarEmotion}
+            size={56}
+            className="mb-1"
+          />
           <div className="text-xs text-purple-300">字玉 JITAMA</div>
           {jlptMode !== "all" && (
             <div className="text-[10px] font-bold text-emerald-400">
