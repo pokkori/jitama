@@ -15,6 +15,7 @@ import { getRankFromScore, getRankProgress, didRankUp } from "@/lib/ranking-util
 import OrbBackground from "@/components/OrbBackground";
 import KanjiMascot, { type MascotPose } from "@/components/KanjiMascot";
 import MergeParticle from "@/components/MergeParticle";
+import ShareScoreCardButton from "@/components/ShareScoreCard";
 
 //  漢字合体 成り立ちデータ 
 interface MergeKnowledge {
@@ -1449,6 +1450,14 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
               </svg>
               今日の記録をXでシェアする
             </button>
+
+            {/* スコア画像生成 + Xシェア */}
+            <ShareScoreCardButton
+              score={state.score}
+              gameName="字玉 JITAMA"
+              gameUrl="https://jitama.vercel.app"
+              hashtags={["字玉JITAMA", "漢字ゲーム"]}
+            />
             {/*  苦手漢字ミニクイズ  */}
             {(() => {
               const { knowledge, choices, level } = getWeakQuizItem(weakQuizIdx);
