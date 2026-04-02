@@ -65,6 +65,76 @@ canvas {
   .glass, .glass-dark, .glass-game { background: rgba(30, 30, 50, 0.85); }
 }
 
+/* ============================================================
+   2026 Game Design Trends — 漢字マージ追加
+   ============================================================ */
+
+/* ---- ゲームカラー変数 ---- */
+:root {
+  --combo-gold: #FFD93D;
+  --score-green: #58CC02;
+  --danger-red: #FF4444;
+  --glow-violet: #7C3AED;
+}
+
+/* ---- アンビエントメッシュグラデーション ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 15% 40%, rgba(120, 40, 200, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(255, 180, 0, 0.15) 0%, transparent 55%),
+    radial-gradient(ellipse at 55% 85%, rgba(255, 60, 130, 0.12) 0%, transparent 55%);
+}
+
+/* ---- スコアポップ ---- */
+@keyframes score-pop {
+  0%   { transform: scale(0) translateY(0);       opacity: 0; }
+  40%  { transform: scale(1.4) translateY(-10px); opacity: 1; }
+  100% { transform: scale(1) translateY(-30px);   opacity: 0; }
+}
+.score-pop {
+  animation: score-pop 600ms cubic-bezier(0.51, 2.17, 0.39, -0.64) forwards;
+}
+
+/* ---- コンボバースト ---- */
+@keyframes combo-burst {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+.combo-burst {
+  animation: combo-burst 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ---- ゲームボタン spring easing ---- */
+.game-btn {
+  transition: transform 84ms linear;
+}
+.game-btn:hover {
+  transform: scale(1.06);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.game-btn:active {
+  transform: scale(0.94);
+  transition: transform 80ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ---- グロー ---- */
+.glow-gold   { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+.glow-violet { box-shadow: 0 0 20px rgba(124, 58, 237, 0.5); }
+
+/* ---- グラスカード ---- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 /* === Pro Dark Theme Base Animations === */
 
 @keyframes float {
