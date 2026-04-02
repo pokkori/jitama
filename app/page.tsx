@@ -4,6 +4,7 @@ import { KANJI_LEVELS } from "@/lib/kanji-data";
 import { JLPT_MODES } from "@/lib/jlpt";
 import PremiumButton from "@/components/PremiumButton";
 import WeeklyRankingSection from "@/components/WeeklyRankingSection";
+import StreakBanner from "@/components/StreakBanner";
 
 const LEVELS_PREVIEW = KANJI_LEVELS.slice(0, 6);
 
@@ -76,6 +77,11 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* 連続プレイストリークバッジ */}
+        <div className="flex justify-center mb-4">
+          <StreakBanner />
         </div>
 
         <Link
