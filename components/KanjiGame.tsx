@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { haptics } from "@/utils/haptics";
 import { KANJI_LEVELS, randomNextLevel } from "@/lib/kanji-data";
 import { type JlptLevel, JLPT_MODES } from "@/lib/jlpt";
 import { useGameSounds } from "@/hooks/useGameSounds";
@@ -745,8 +746,8 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           const newHs = Math.max(hs, score);
           localStorage.setItem("jitama_hs", String(newHs));
           const isNewHighScore = score >= newHs && score > 0;
-          if (isNewHighScore) playHighScore();
-          else playGameOver();
+          if (isNewHighScore) { haptics.success(); playHighScore(); }
+          else { haptics.error(); playGameOver(); }
           // デイリーチャレンジ更新
           saveDailyChallengeScore(score);
           setDailyChallenge(getDailyChallengeStatus());
@@ -771,6 +772,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
           setMascotPose("wrong");
         },
         (level) => {
+          haptics.tap();
           playMerge(level);
 
           // パーティクルバースト
