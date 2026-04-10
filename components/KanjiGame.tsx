@@ -1078,7 +1078,7 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
       />
 
       {/* OrbBackground: fixed, z-index:0 */}
-      <OrbBackground />
+      <OrbBackground theme="kanji" />
 
       {/* MergeParticle */}
       <MergeParticle triggerLevel={mergeLevel} />
@@ -1509,7 +1509,21 @@ export default function KanjiGame({ onGameOver: onGameOverExternal, jlptMode = "
                   <div className="text-xs font-bold mb-1" style={{ color: dc.cleared ? "#34d399" : "#a78bfa" }}>
                     {today}のデイリーチャレンジ {dc.cleared ? "クリア！" : `目標 ${dc.target.toLocaleString()}pt`}
                   </div>
-                  <div className="text-xl tracking-widest my-1">{emojiGrid}</div>
+                  <div className="flex gap-1 justify-center my-1" aria-label={`進捗: ${dc.best}/${dc.target}pt`}>
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const filled = Math.min(5, Math.round((dc.best / dc.target) * 5));
+                      const isFilled = i < filled;
+                      return (
+                        <svg key={i} width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                          <rect x="1" y="1" width="16" height="16" rx="3"
+                            fill={isFilled ? (filled === 5 ? "#34d399" : "#a78bfa") : "rgba(255,255,255,0.1)"}
+                            stroke={isFilled ? (filled === 5 ? "#34d399" : "#a78bfa") : "rgba(255,255,255,0.2)"}
+                            strokeWidth="1"
+                          />
+                        </svg>
+                      );
+                    })}
+                  </div>
                   <div className="text-xs text-purple-400">
                     {dc.cleared
                       ? `${dc.best.toLocaleString()}pt 達成！みんなに自慢しよう`

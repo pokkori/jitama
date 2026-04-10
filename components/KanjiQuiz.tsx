@@ -327,7 +327,10 @@ export default function KanjiQuiz({ isPremium, onOpenPayjp }: KanjiQuizProps) {
           <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
             <div className="bg-[#1a0a2e] border border-red-700/60 rounded-2xl p-5 max-w-sm w-full max-h-[80vh] flex flex-col">
               <div className="text-center mb-4">
-                <div className="text-xl mb-1"></div>
+                <svg width="28" height="28" viewBox="0 0 28 28" className="mx-auto mb-1" aria-hidden="true">
+                  <path d="M14 3L25 9.5v9L14 25 3 18.5v-9L14 3z" fill="none" stroke="#ef4444" strokeWidth="2"/>
+                  <text x="14" y="19" textAnchor="middle" fill="#ef4444" fontSize="11" fontWeight="bold">苦</text>
+                </svg>
                 <h3 className="text-base font-bold text-white">苦手漢字リスト</h3>
                 <p className="text-xs text-red-300 mt-1">間違えた漢字をまとめて復習しよう</p>
               </div>
